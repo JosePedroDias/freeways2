@@ -1,5 +1,9 @@
 import { Point } from 'pixi.js';
 
+export function distXY(dx:number, dy:number):number {
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
 export function dist(p1:Point, p2:Point):number {
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
@@ -26,4 +30,11 @@ export function getVersorFromAngle(ang:number):Point {
 
 export function rotate90Degrees(p:Point):Point {
     return new Point(p.y, -p.x);
+}
+
+export function angleBetweenVersors(v1:Point, v2:Point):number {
+    let dAng = getAngleFromVersor(v2) - getAngleFromVersor(v1);
+    if (dAng > Math.PI) dAng -= 2 * Math.PI;
+    else if (dAng < -Math.PI) dAng += 2 * Math.PI;
+    return dAng;
 }

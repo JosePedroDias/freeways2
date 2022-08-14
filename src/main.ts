@@ -1,5 +1,5 @@
-import { utils, Application, Graphics, Point } from 'pixi.js';
-import { dist, getVersor, getAngleFromVersor, rotate90Degrees } from './aux';
+import { utils, Application, Graphics, Point, RAD_TO_DEG } from 'pixi.js';
+import { dist, getVersor, rotate90Degrees, angleBetweenVersors, distXY } from './aux';
 
 utils.skipHello();
 
@@ -7,21 +7,21 @@ const W = 1024;
 const H = 768;
 
 const MIN_DIST = 10;
-const MIN_DELTA_ANGLE = Math.PI / 20;
-const ROAD_RADIUS = 20;
+const ROAD_RADIUS = 16;
+const BG_COLOR = 0x449944;
 const ROAD_COLORS = [0x333333, 0x666666, 0x999999];
 
 const app = new Application({
     width: W,
     height: H,
-    backgroundColor: 0x1099bb
+    //backgroundColor: BG_COLOR
 });
 
 document.body.appendChild(app.view);
 
 
 const bg = new Graphics();
-bg.beginFill(0xDE3249);
+bg.beginFill(BG_COLOR);
 bg.drawRect(0, 0, W, H);
 bg.endFill();
 bg.interactive = true;
@@ -33,13 +33,11 @@ app.stage.addChild(gfx);
 
 type Segment = {
     points: Point[];
-    angles: number[];
     versors: Point[];
 }
 
 let segment:Segment = {
     points: [],
-    angles: [],
     versors: []
 };
 
@@ -51,35 +49,51 @@ function updateGfx() {
     const path:Point[] = [];
 
     let l = segment.points.length;
-    let i;
-    for (i = 0; i < l; ++i) {
-        const p = segment.points[i];
-        const v_ = segment.versors[i];
-        if (!v_) continue;
-        const v = rotate90Degrees(v_);
-        v.x = p.x + ROAD_RADIUS * v.x;
-        v.y = p.y + ROAD_RADIUS * v.y;
-        path.push(v);
+    if (l < 2) return;
+
+    const cases = [
+        {from: 0,   sign:  1},
+        {from: l-1, sign: -1}
+    ];
+
+    for (let {from, sign} of cases) {
+        let i = from;
+        let step = 0;
+        while (step++ < l) {
+            const isLastOne = i === l - 1;
+            const doAverage = i > 0 && !isLastOne;
+            const p = segment.points[i];
+            let v_;
+            if (doAverage) {
+                const v0 = segment.versors[i-1];
+                const v1 = segment.versors[i];
+                v_ = new Point(v0.x + v1.x, v0.y + v1.y);
+                const d = distXY(v_.x, v_.y);
+                v_.x /= d;
+                v_.y /= d;
+            } else {
+                v_ = segment.versors[isLastOne ? i - 1 : i];
+            }
+            const v = rotate90Degrees(v_);
+            v.x = p.x + ROAD_RADIUS * sign * v.x;
+            v.y = p.y + ROAD_RADIUS * sign * v.y;
+            path.push(v);
+
+            i = i + sign;
+        }
     }
-    for (i = l-1; i >= 0; --i) {
-        const p = segment.points[i];
-        const v_ = segment.versors[i];
-        if (!v_) continue;
-        const v = rotate90Degrees(v_);
-        v.x = p.x + ROAD_RADIUS * -v.x;
-        v.y = p.y + ROAD_RADIUS * -v.y;
-        path.push(v);
-    }
-    
-    gfx.beginFill(0x3500FA, 1);
+
+    gfx.beginFill(ROAD_COLORS[0], 1);
     gfx.drawPolygon(path);
     gfx.endFill();
 
-    gfx.beginFill(0xFFFFFF, 0.75);
-    for (let {x, y} of segment.points) {
-        gfx.drawCircle(x, y, 2);
+    if (true) {
+        gfx.beginFill(0xFFFFFF, 0.25);
+        for (let {x, y} of segment.points) {
+            gfx.drawCircle(x, y, 1.5);
+        }
+        gfx.endFill();
     }
-    gfx.endFill();
 }
 
 let isDown = false;
@@ -99,7 +113,13 @@ bg.on('pointermove', (ev) => {
             segment.points.push(p.clone());
             const v = getVersor(p, lastP);
             segment.versors.push(v);
-            segment.angles.push(getAngleFromVersor(v))
+
+            const v0 = segment.versors.at(-2);
+            const v1 = segment.versors.at(-1);
+            if (v0 && v1) {
+                const ang = angleBetweenVersors(v0, v1);
+                console.log( (RAD_TO_DEG * ang).toFixed(1) );
+            }
             updateGfx();
         }
     }
@@ -117,34 +137,10 @@ bg.on('pointerup', () => {
 
     segment = {
         points: [],
-        angles: [],
         versors: []
     };
 });
 
-
-/* const graphics = new Graphics();
-
-graphics.beginFill(0xFF3300);
-graphics.lineStyle(10, 0xffd900, 1);
-
-graphics.moveTo(50, 50);
-graphics.lineTo(250, 50);
-graphics.lineTo(100, 100);
-graphics.lineTo(250, 220);
-graphics.lineTo(50, 220);
-graphics.lineTo(50, 50);
-graphics.closePath();
-graphics.endFill();
-
-app.stage.addChild(graphics); */
-
-
-
-/* app.ticker.add((_delta:number) => {
-    const pos = app.renderer.plugins.interaction.mouse.global;
-    console.log(`${pos.x}, ${pos.y}`);
-}); */
 
 
 /* const basicText = new Text('Basic text in pixi');
