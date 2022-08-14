@@ -1,3 +1,9 @@
+# TL;DR
+
+Exploring the concepts behind the game [freeways](https://captaingames.itch.io/freeways).
+
+## REFERENCE MATERIAL
+
 https://pixijs.io/guides/
 https://pixijs.download/release/docs/index.html
 https://pixijs.io/examples/
@@ -10,3 +16,8 @@ https://pixijs.io/examples/#/graphics/dynamic.js
 https://github.com/timohausmann/quadtree-ts/
 https://timohausmann.github.io/quadtree-js/dynamic.html
 alternative https://github.com/CorentinTh/quadtree-js
+
+
+## CREDITS
+
+- using assets from this bundle as stubs https://gamesupply.itch.io/cars-and-trucks

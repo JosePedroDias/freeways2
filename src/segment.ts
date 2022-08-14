@@ -1,5 +1,10 @@
-import { Graphics, Point, RAD_TO_DEG } from 'pixi.js';
-import { rotate90Degrees, distXY, dist, getVersor, angleBetweenVersors } from './aux';
+import { Graphics, Point } from 'pixi.js';
+import {
+  rotate90Degrees,
+  distXY,
+  dist,
+  getVersor,
+} from './aux';
 import { MIN_DIST, ROAD_COLORS, ROAD_RADIUS } from './constants';
 
 export type Segment = {
@@ -62,7 +67,11 @@ export function updateGfx(segment: Segment, gfx: Graphics) {
     } */
 }
 
-export function onMove(segment: Segment, gfx: Graphics, p: Point): [Point, Point] | undefined {
+export function onMove(
+  segment: Segment,
+  gfx: Graphics,
+  p: Point,
+): [Point, Point] | undefined {
   const lastP = segment.points.at(-1);
   if (!lastP) {
     segment.points.push(p.clone());
