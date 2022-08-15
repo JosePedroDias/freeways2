@@ -19,14 +19,15 @@ import {
 import { updateQuadTreeGraphics, onlyColliding } from './quadExtras';
 import { getRandomColor } from './colors';
 
-type SprintWithShape = Sprite & {
+type SpriteWithShape = Sprite & {
   _shape: Circle;
 };
 
 const TEXTURE_PATH = 'assets/cars/DeLorean_DMC.png';
 
-const CAR_RADIUS = 20;
-const LOOK_AHEAD = 9;
+const CAR_RADIUS = 18;
+const LOOK_AHEAD = 14;
+const LOOK_AHEAD_CIRCLE_RADIUS = CAR_RADIUS * 0.4;
 const CAR_SPEED = 60; // in pixels per sec
 const ARROW_W = 6;
 const ARROW_H = 9;
@@ -41,6 +42,7 @@ const qtCars = new Quadtree({
 const qtGfx = new Graphics();
 
 const cars: DisplayObject[] = [];
+let extraShapes:any[] = [];
 
 export function setupCarQtVis(app: Application) {
   app.stage.addChild(qtGfx);
@@ -52,7 +54,7 @@ export function setupCarQtVis(app: Application) {
 
     let i = 0;
     for (const _car of cars) {
-      const car = _car as SprintWithShape;
+      const car = _car as SpriteWithShape;
       const shape = new Circle({
         x: car.position.x,
         y: car.position.y,
@@ -66,7 +68,8 @@ export function setupCarQtVis(app: Application) {
     _remaining -= dMs;
     //if (remaining > 0) return
 
-    updateQuadTreeGraphics(qtCars, qtGfx);
+    updateQuadTreeGraphics(qtCars, qtGfx, extraShapes);
+    extraShapes = [];
 
     _remaining += 20;
   });
@@ -143,18 +146,18 @@ export function addCar(
 
     const destVersor = getVersor(car.position, destination);
 
-    const car2 = car as SprintWithShape;
-    const testObj = new Circle({
+    const car2 = car as SpriteWithShape;
+    const testShape = new Circle({
       x: car.position.x + destVersor.x * LOOK_AHEAD,
       y: car.position.y + destVersor.y * LOOK_AHEAD,
-      r: CAR_RADIUS,
+      r: LOOK_AHEAD_CIRCLE_RADIUS,
     });
+    extraShapes.push(testShape)
 
     // test if someone is in front of me and stop if so
     let keepMoving = true;
-    const neighbors = qtCars.retrieve(testObj);
-    const neighbors2 = onlyColliding(testObj, neighbors);
-    for (const nei of neighbors2) {
+    const neighbors = onlyColliding(testShape, qtCars.retrieve(testShape));
+    for (const nei of neighbors) {
       if (nei === car2._shape) continue;
       keepMoving = false;
     }

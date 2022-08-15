@@ -18,14 +18,16 @@ export function getAllObjects(qt: Quadtree<any>): any[] {
 }
 
 const CIRCLE_FILL = 0xff00ff;
+const EXTRA_FILL = 0xaaaa00;
 
-export function updateQuadTreeGraphics(qt: Quadtree<any>, gfx: Graphics) {
-  const objects = getAllObjects(qt);
+export function updateQuadTreeGraphics(qt: Quadtree<any>, gfx: Graphics, extraShapes:any[] = []) {
+  const objects = [...getAllObjects(qt), ...extraShapes];
   gfx.clear();
   gfx.lineStyle(0);
   for (const obj of objects) {
     if (obj instanceof Circle) {
-      gfx.beginFill(CIRCLE_FILL, 0.5);
+      if (extraShapes.includes(obj)) gfx.beginFill(EXTRA_FILL, 0.5);
+      else gfx.beginFill(CIRCLE_FILL, 0.25);
       gfx.drawCircle(obj.x, obj.y, obj.r);
       gfx.endFill();
     }
