@@ -26,6 +26,7 @@ type SprintWithShape = Sprite & {
 const TEXTURE_PATH = 'assets/cars/DeLorean_DMC.png';
 
 const CAR_RADIUS = 20;
+const LOOK_AHEAD = 9;
 const CAR_SPEED = 60; // in pixels per sec
 const ARROW_W = 6;
 const ARROW_H = 9;
@@ -145,31 +146,35 @@ export function addCar(
   app.ticker.add(() => {
     const deltaSecs = app.ticker.deltaMS / 1000;
 
-    const car2 = car as SprintWithShape;
+    const destVersor = getVersor(car.position, destination);
 
-    // if there's someone in front of me, stay still
-    if (car2._shape) {
-      const neighbours = qtCars.retrieve(car2._shape);
-      if (neighbours.length) {
-        const neighbours2 = onlyColliding(car2._shape, neighbours);
-        if (neighbours2.length) {
-          console.log(car2._shape, neighbours2);
-          debugger;
-        }
-      }
+    const car2 = car as SprintWithShape;
+    const testObj = new Circle({
+      x: car.position.x + destVersor.x * LOOK_AHEAD,
+      y: car.position.y + destVersor.y * LOOK_AHEAD,
+      r: CAR_RADIUS
+    })
+
+    // test if someone is in front of me and stop if so
+    let keepMoving = true;
+    const neighbors = qtCars.retrieve(testObj);
+    const neighbors2 = onlyColliding(testObj, neighbors);
+    for (let nei of neighbors2) {
+      if (nei === car2._shape) continue;
+      keepMoving = false;
     }
 
     if (dist(car.position, destination) < 2) {
       updateDestination();
     }
 
-    const destVersor = getVersor(car.position, destination);
-
-    car.position.set(
-      car.x + destVersor.x * CAR_SPEED * deltaSecs,
-      car.y + destVersor.y * CAR_SPEED * deltaSecs,
-    );
-
-    car.angle = getAngleFromVersor(destVersor) * RAD_TO_DEG + 90;
+    if (keepMoving) {
+      car.position.set(
+        car.position.x + destVersor.x * CAR_SPEED * deltaSecs,
+        car.position.y + destVersor.y * CAR_SPEED * deltaSecs,
+      );
+  
+      car.angle = getAngleFromVersor(destVersor) * RAD_TO_DEG + 90;
+    }
   });
 }
