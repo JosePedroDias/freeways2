@@ -5,8 +5,9 @@ import {
   Sprite,
   Graphics,
   Container,
+  DisplayObject
 } from 'pixi.js';
-import { Quadtree, Circle as QCircle } from '@timohausmann/quadtree-ts';
+import { Quadtree, Circle  } from '@timohausmann/quadtree-ts';
 
 import { W, H } from './constants';
 import {
@@ -15,21 +16,65 @@ import {
   rotate90Degrees,
   dist,
 } from './geometry';
+import { updateQuadTreeGraphics, onlyColliding } from './quadExtras';
 import { getRandomColor } from './colors';
 
-//const TEXTURE_PATH = 'assets/cars/Ferrari_F40.png';
+type SprintWithShape = Sprite & {
+  _shape: Circle;
+};
+
 const TEXTURE_PATH = 'assets/cars/DeLorean_DMC.png';
 
+const CAR_RADIUS = 20;
 const CAR_SPEED = 60; // in pixels per sec
 const ARROW_W = 6;
 const ARROW_H = 9;
 
-const qt = new Quadtree({
+const qtCars = new Quadtree({
   width: W,
   height: H,
   maxObjects: 10, // optional, default: 10
   maxLevels: 4, // optional, default:  4
 });
+
+const qtGfx = new Graphics();
+
+const cars:DisplayObject[] = [];
+let carShapes:Circle[] = [];
+
+export function setupCarQtVis(app:Application) {
+  app.stage.addChild(qtGfx);
+
+  let remaining = 0;
+
+  app.ticker.add((dMs) => {
+    // TODO NOT HERE?
+    qtCars.clear();
+    carShapes = [];
+
+    let i = 0;
+    for (let _car of cars) {
+      const car = _car as SprintWithShape;
+      const shape = new Circle({
+        x: car.position.x,
+        y: car.position.y,
+        r: CAR_RADIUS,
+        data: (i++) as any
+      });
+      car._shape = shape;
+      qtCars.insert(shape);
+    }
+  
+    //console.log(dMs);
+    remaining -= dMs;
+    //if (remaining > 0) return
+
+    //console.log('asd', Math.random());
+    updateQuadTreeGraphics(qtCars, qtGfx);
+
+    remaining += 20;
+  })
+}
 
 export function addCar(
   app: Application,
@@ -49,6 +94,15 @@ export function addCar(
   car.scale.set(0.25);
   car.position = getRandomPosition();
   car.tint = tint;
+  car.anchor.set(0.5);
+
+  /* const labelTxt = new Text(`${cars.length}`);
+  const car = new Container();
+  car.addChild(carSprite);
+  car.addChild(labelTxt); */
+  
+  carsCtn.addChild(car);
+  cars.push(car);
 
   let destination: Point;
 
@@ -63,14 +117,13 @@ export function addCar(
 
     auxGfx.clear();
 
-    // @ts-ignore join and cap missing?
     auxGfx.lineStyle({
       width: 3,
       color: tint,
       alpha: 0.33,
-      join: 'round',
+      join: 'round', // these are not typed :/
       cap: 'round',
-    });
+    } as any);
 
     auxGfx.moveTo(car.position.x, car.position.y);
     auxGfx.lineTo(destination.x, destination.y);
@@ -89,23 +142,22 @@ export function addCar(
 
   updateDestination();
 
-  const myCircle = new QCircle({
-    x: car.position.x,
-    y: car.position.y,
-    r: 20,
-  });
-
-  qt.insert(myCircle);
-
-  car.anchor.set(0.5);
-
-  carsCtn.addChild(car);
-
   app.ticker.add(() => {
     const deltaSecs = app.ticker.deltaMS / 1000;
 
+    const car2 = car as SprintWithShape;
+
     // if there's someone in front of me, stay still
-    //const neighbours = qt.retrieve()
+    if (car2._shape) {
+      const neighbours = qtCars.retrieve(car2._shape);
+      if (neighbours.length) {
+        const neighbours2 = onlyColliding(car2._shape, neighbours);
+        if (neighbours2.length) {
+          console.log(car2._shape, neighbours2);
+          debugger;
+        }
+      }
+    }
 
     if (dist(car.position, destination) < 2) {
       updateDestination();
@@ -119,20 +171,5 @@ export function addCar(
     );
 
     car.angle = getAngleFromVersor(destVersor) * RAD_TO_DEG + 90;
-
-    /* const pos = car.position;
-    const area = new Rectangle({
-      x: pos.x,
-      y: pos.y,
-      width: ROAD_RADIUS * 4,
-      height: ROAD_RADIUS * 4,
-    });
-    const elements = qt.retrieve(area);
-    if (elements.length > 0) {
-      //console.log(elements.length)
-    } */
-    //console.log(elements);
-    //console.log(app.ticker.lastTime);
-    //carSprite.rotation += 0.01;
   });
 }

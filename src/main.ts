@@ -3,7 +3,7 @@ import { Quadtree, Line } from '@timohausmann/quadtree-ts';
 
 import { W, H, BG_COLOR, SHOW_FPS } from './constants';
 import { Segment, onMove, updateGfx } from './segment';
-import { addCar } from './car';
+import { addCar, setupCarQtVis } from './car';
 
 utils.skipHello();
 
@@ -112,7 +112,9 @@ bg.on('pointerup', () => {
   segments.push(segment);
 });
 
-for (let i = 0; i < 40; ++i) {
+setupCarQtVis(app);
+
+for (let i = 0; i < 12; ++i) {
   addCar(app, carsCtn, carsAuxCtn);
 }
 
