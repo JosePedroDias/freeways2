@@ -5,9 +5,9 @@ import {
   Sprite,
   Graphics,
   Container,
-  DisplayObject
+  DisplayObject,
 } from 'pixi.js';
-import { Quadtree, Circle  } from '@timohausmann/quadtree-ts';
+import { Quadtree, Circle } from '@timohausmann/quadtree-ts';
 
 import { W, H } from './constants';
 import {
@@ -40,41 +40,36 @@ const qtCars = new Quadtree({
 
 const qtGfx = new Graphics();
 
-const cars:DisplayObject[] = [];
-let carShapes:Circle[] = [];
+const cars: DisplayObject[] = [];
 
-export function setupCarQtVis(app:Application) {
+export function setupCarQtVis(app: Application) {
   app.stage.addChild(qtGfx);
 
-  let remaining = 0;
+  let _remaining = 0;
 
   app.ticker.add((dMs) => {
-    // TODO NOT HERE?
     qtCars.clear();
-    carShapes = [];
 
     let i = 0;
-    for (let _car of cars) {
+    for (const _car of cars) {
       const car = _car as SprintWithShape;
       const shape = new Circle({
         x: car.position.x,
         y: car.position.y,
         r: CAR_RADIUS,
-        data: (i++) as any
+        data: i++ as any,
       });
       car._shape = shape;
       qtCars.insert(shape);
     }
-  
-    //console.log(dMs);
-    remaining -= dMs;
+
+    _remaining -= dMs;
     //if (remaining > 0) return
 
-    //console.log('asd', Math.random());
     updateQuadTreeGraphics(qtCars, qtGfx);
 
-    remaining += 20;
-  })
+    _remaining += 20;
+  });
 }
 
 export function addCar(
@@ -101,7 +96,7 @@ export function addCar(
   const car = new Container();
   car.addChild(carSprite);
   car.addChild(labelTxt); */
-  
+
   carsCtn.addChild(car);
   cars.push(car);
 
@@ -152,14 +147,14 @@ export function addCar(
     const testObj = new Circle({
       x: car.position.x + destVersor.x * LOOK_AHEAD,
       y: car.position.y + destVersor.y * LOOK_AHEAD,
-      r: CAR_RADIUS
-    })
+      r: CAR_RADIUS,
+    });
 
     // test if someone is in front of me and stop if so
     let keepMoving = true;
     const neighbors = qtCars.retrieve(testObj);
     const neighbors2 = onlyColliding(testObj, neighbors);
-    for (let nei of neighbors2) {
+    for (const nei of neighbors2) {
       if (nei === car2._shape) continue;
       keepMoving = false;
     }
@@ -173,7 +168,7 @@ export function addCar(
         car.position.x + destVersor.x * CAR_SPEED * deltaSecs,
         car.position.y + destVersor.y * CAR_SPEED * deltaSecs,
       );
-  
+
       car.angle = getAngleFromVersor(destVersor) * RAD_TO_DEG + 90;
     }
   });
