@@ -1,8 +1,20 @@
-import { Application, Point, RAD_TO_DEG, Sprite, Graphics, Container } from 'pixi.js';
+import {
+  Application,
+  Point,
+  RAD_TO_DEG,
+  Sprite,
+  Graphics,
+  Container,
+} from 'pixi.js';
 import { Quadtree, Circle as QCircle } from '@timohausmann/quadtree-ts';
 
 import { W, H } from './constants';
-import { getVersor, getAngleFromVersor, rotate90Degrees, dist } from './aux';
+import {
+  getVersor,
+  getAngleFromVersor,
+  rotate90Degrees,
+  dist,
+} from './geometry';
 import { getRandomColor } from './colors';
 
 //const TEXTURE_PATH = 'assets/cars/Ferrari_F40.png';
@@ -19,12 +31,13 @@ const qt = new Quadtree({
   maxLevels: 4, // optional, default:  4
 });
 
-export function addCar(app: Application, carsCtn:Container, carsAuxCtn:Container) {
+export function addCar(
+  app: Application,
+  carsCtn: Container,
+  carsAuxCtn: Container,
+) {
   function getRandomPosition() {
-    return new Point(
-      Math.random() * W,
-      Math.random() * H,
-    );
+    return new Point(Math.random() * W, Math.random() * H);
   }
 
   const tint = getRandomColor();
@@ -37,7 +50,7 @@ export function addCar(app: Application, carsCtn:Container, carsAuxCtn:Container
   car.position = getRandomPosition();
   car.tint = tint;
 
-  let destination:Point;
+  let destination: Point;
 
   function updateDestination() {
     destination = getRandomPosition();
@@ -49,20 +62,34 @@ export function addCar(app: Application, carsCtn:Container, carsAuxCtn:Container
     const left = new Point(destVersorL.x * ARROW_W, destVersorL.y * ARROW_W);
 
     auxGfx.clear();
-    auxGfx.lineStyle({ width: 3, color: tint, alpha: 0.33 });
+
+    // @ts-ignore join and cap missing?
+    auxGfx.lineStyle({
+      width: 3,
+      color: tint,
+      alpha: 0.33,
+      join: 'round',
+      cap: 'round',
+    });
 
     auxGfx.moveTo(car.position.x, car.position.y);
     auxGfx.lineTo(destination.x, destination.y);
-    auxGfx.lineTo(destination.x - tip.x + left.x, destination.y - tip.y + left.y);
+    auxGfx.lineTo(
+      destination.x - tip.x + left.x,
+      destination.y - tip.y + left.y,
+    );
     auxGfx.moveTo(destination.x, destination.y);
-    auxGfx.lineTo(destination.x - tip.x - left.x, destination.y - tip.y - left.y);
+    auxGfx.lineTo(
+      destination.x - tip.x - left.x,
+      destination.y - tip.y - left.y,
+    );
 
     //console.log('new destination', destination);
   }
 
   updateDestination();
 
-  let myCircle = new QCircle({
+  const myCircle = new QCircle({
     x: car.position.x,
     y: car.position.y,
     r: 20,

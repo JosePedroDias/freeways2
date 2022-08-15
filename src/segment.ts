@@ -1,10 +1,5 @@
 import { Graphics, Point } from 'pixi.js';
-import {
-  rotate90Degrees,
-  distXY,
-  dist,
-  getVersor,
-} from './aux';
+import { rotate90Degrees, distXY, dist, getVersor } from './geometry';
 import { MIN_DIST, ROAD_COLORS, ROAD_RADIUS } from './constants';
 
 export type Segment = {
