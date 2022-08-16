@@ -49,31 +49,36 @@ export function lineLineCollidesAt(
   return false;
 }
 
+export function doesSegmentSelfIntersect(segment:Segment):boolean {
+  const pairs = pairUp(segment.points);
+  const combs = combinationsOnce(pairs.length, false);
+  for (const [pi1, pi2] of combs) {
+    const [l1a, l1b] = pairs[pi1];
+    const [l2a, l2b] = pairs[pi2];
+    if (lineLineCollides(l1a, l1b, l2a, l2b)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
   gfx.clear();
-
   const segmentIndices = combinationsOnce(segments.length, true);
   for (const [si1, si2] of segmentIndices) {
     const seg1 = segments[si1];
     const seg2 = segments[si2];
-
-    console.log(`segments #${si1} vs #${si2}...`);
-
-    //if (si1 === si2) {
-    // TODO
-    //} else {
+    //console.log(`segments #${si1} vs #${si2}...`);
     const pairs1 = pairUp(seg1.points);
     const pairs2 = pairUp(seg2.points);
     let int: Point | false = false;
     for (const [[l1a, l1b], [l2a, l2b]] of combine2(pairs1, pairs2)) {
       if ((int = lineLineCollidesAt(l1a, l1b, l2a, l2b))) {
-        //console.log('lines', l1a, l1b, l2a, l2b);
-        console.log('int', int);
+        //console.log('int', int);
         gfx.beginFill(0xffffff, 0.75);
         gfx.drawCircle(int.x, int.y, 5);
         gfx.endFill();
       }
     }
-    //}
   }
 }

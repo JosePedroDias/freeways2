@@ -5,7 +5,7 @@ import { W, H, BG_COLOR, SHOW_FPS } from './constants';
 import { Segment, onMove, updateGfx } from './segment';
 import { setupCarQtVis } from './car';
 import { setupKeyHandling } from './keyboard';
-import { segmentsToGraph } from './topology';
+import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 
 utils.skipHello();
 
@@ -98,19 +98,23 @@ bg.on('pointerdown', () => {
 bg.on('pointerup', () => {
   isDown = false;
 
+  if (doesSegmentSelfIntersect(segment)) {
+    segments.pop();
+    roadsCtn.removeChild(segmentGfx);
+  }
+
   segmentGfx = new Graphics();
   roadsCtn.addChild(segmentGfx);
 
   /* console.log({
-        points:  segment.points.map(v => [simplifyNumber(v.x), simplifyNumber(v.y)]),
-        versors: segment.versors.map(v => [simplifyNumber(v.x, 3), simplifyNumber(v.y, 3)])
-    }); */
+    points:  segment.points.map(v => [simplifyNumber(v.x), simplifyNumber(v.y)]),
+    versors: segment.versors.map(v => [simplifyNumber(v.x, 3), simplifyNumber(v.y, 3)])
+  }); */
 
   segment = {
     points: [],
     versors: [],
   };
-
   segments.push(segment);
 });
 
