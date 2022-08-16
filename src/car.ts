@@ -42,7 +42,7 @@ const qtCars = new Quadtree({
 const qtGfx = new Graphics();
 
 const cars: DisplayObject[] = [];
-let extraShapes:any[] = [];
+let extraShapes: any[] = [];
 
 export function setupCarQtVis(app: Application) {
   app.stage.addChild(qtGfx);
@@ -152,7 +152,7 @@ export function addCar(
       y: car.position.y + destVersor.y * LOOK_AHEAD,
       r: LOOK_AHEAD_CIRCLE_RADIUS,
     });
-    extraShapes.push(testShape)
+    extraShapes.push(testShape);
 
     // test if someone is in front of me and stop if so
     let keepMoving = true;

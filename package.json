@@ -32,7 +32,6 @@
         "vitest": "^0.21.1"
     },
     "dependencies": {
-        "@pixi/sound": "^4.3.0",
-        "line-intersect": "^3.0.0"
+        "@pixi/sound": "^4.3.0"
     }
 }

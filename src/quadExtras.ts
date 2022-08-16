@@ -20,7 +20,11 @@ export function getAllObjects(qt: Quadtree<any>): any[] {
 const CIRCLE_FILL = 0xff00ff;
 const EXTRA_FILL = 0xaaaa00;
 
-export function updateQuadTreeGraphics(qt: Quadtree<any>, gfx: Graphics, extraShapes:any[] = []) {
+export function updateQuadTreeGraphics(
+  qt: Quadtree<any>,
+  gfx: Graphics,
+  extraShapes: any[] = [],
+) {
   const objects = [...getAllObjects(qt), ...extraShapes];
   gfx.clear();
   gfx.lineStyle(0);

@@ -3,7 +3,9 @@ import { Quadtree, Line } from '@timohausmann/quadtree-ts';
 
 import { W, H, BG_COLOR, SHOW_FPS } from './constants';
 import { Segment, onMove, updateGfx } from './segment';
-import { addCar, setupCarQtVis } from './car';
+import { setupCarQtVis } from './car';
+import { setupKeyHandling } from './keyboard';
+import { segmentsToGraph } from './topology';
 
 utils.skipHello();
 
@@ -114,8 +116,19 @@ bg.on('pointerup', () => {
 
 setupCarQtVis(app);
 
-for (let i = 0; i < 12; ++i) {
+const topoGfx = new Graphics();
+app.stage.addChild(topoGfx);
+setupKeyHandling((key, isDown): boolean => {
+  //console.log(isDown ? 'down' : 'up  ', key);
+  if (isDown && key === ' ') {
+    segmentsToGraph(segments, topoGfx);
+    return true;
+  }
+  return false;
+});
+
+/* for (let i = 0; i < 12; ++i) {
   addCar(app, carsCtn, carsAuxCtn);
-}
+} */
 
 //}

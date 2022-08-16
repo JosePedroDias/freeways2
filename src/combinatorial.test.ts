@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { combinationsOnce, combine2, pairUp } from './combinatory';
+import { combinationsOnce, combine2, pairUp } from './combinatorial';
 
 describe('combinationsOnce', () => {
   it('basic', () => {

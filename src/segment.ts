@@ -53,13 +53,12 @@ export function updateGfx(segment: Segment, gfx: Graphics) {
   gfx.drawPolygon(path);
   gfx.endFill();
 
-  /* if (true) {
-        gfx.beginFill(0xFFFFFF, 0.25);
-        for (let {x, y} of segment.points) {
-            gfx.drawCircle(x, y, 1.5);
-        }
-        gfx.endFill();
-    } */
+  /* 
+    gfx.beginFill(0xFFFFFF, 0.25);
+    for (let {x, y} of segment.points) {
+      gfx.drawCircle(x, y, 1.5);
+    }
+    gfx.endFill();*/
 }
 
 export function onMove(
@@ -77,13 +76,6 @@ export function onMove(
       segment.points.push(p.clone());
       const v = getVersor(p, lastP);
       segment.versors.push(v);
-
-      /* const v0 = segment.versors.at(-2);
-            const v1 = segment.versors.at(-1);
-            if (v0 && v1) {
-                const ang = angleBetweenVersors(v0, v1);
-                console.log( (RAD_TO_DEG * ang).toFixed(1) );
-            } */
 
       updateGfx(segment, gfx);
 

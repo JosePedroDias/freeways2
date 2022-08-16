@@ -1,3 +1,5 @@
+// TODO: all of these could have generator variants instead of allocating the whole combinations
+
 export function combinationsOnce(
   n: number,
   ignoreMyself: boolean,
