@@ -5,6 +5,7 @@ import { Graphics, Point } from 'pixi.js';
 import { combinationsOnce, combine2, pairUp } from './combinatorial';
 
 // https://en.wikipedia.org/wiki/Intersection_(Euclidean_geometry)#Two_lines
+// https://www.codegrepper.com/code-examples/javascript/javascript+get+point+of+line+intersection
 // same function as quadExtras lineLineCollides but with different types as it's called super often
 export function lineLineCollides(
   l1a: Point,
@@ -40,9 +41,10 @@ export function lineLineCollidesAt(
     ((l1a.y - l1b.y) * (l2b.x - l1a.x) + (l1b.x - l1a.x) * (l2b.y - l1a.y)) /
     det;
   if (0 < lambda && lambda < 1 && 0 < gamma && gamma < 1) {
-    // TODO this is wrong!
-    const t = lambda / det;
-    return new Point(l1a.x + t * (l1b.x - l1a.x), l1a.y + t * (l1b.y - l1a.y));
+    return new Point(
+      l1a.x + lambda * (l1b.x - l1a.x),
+      l1a.y + lambda * (l1b.y - l1a.y)
+    );
   }
   return false;
 }
