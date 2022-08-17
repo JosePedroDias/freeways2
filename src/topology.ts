@@ -51,30 +51,11 @@ export function lineLineCollidesAt(
   return false;
 }
 
-//const EPSILON = 1e-6;
-const EPSILON = 1;
-
-export function isPointInsideLineSegment_(
-  p: Point,
-  a: Point,
-  b: Point,
-): boolean {
-  const crossProduct = (p.y - a.y) * (b.x - a.x) - (p.x - a.x) * (b.y - a.y);
-  if (Math.abs(crossProduct) > EPSILON) return false;
-  const dotProduct = (p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)
-  if (dotProduct < 0) return false
-  const squaredLengthBA = (b.x - a.x)*(b.x - a.x) + (b.y - a.y)*(b.y - a.y);
-  return (dotProduct <= squaredLengthBA);
-}
-
 export function isPointInsideLineSegment(
   p: Point,
   a: Point,
   b: Point,
 ): boolean {
-  if (!p || !a || !b) {
-    debugger;
-  }
   const v1 = getVersor(a, p);
   const v2 = getVersor(p, b);
   const ang = angleBetweenVersors(v1, v2);
@@ -127,7 +108,6 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
   }
 
   for (let i = 0; i < segments.length; ++i) {
-    //console.log(`segment #${i}`)
     const points = segments[i].points;
     const lookFor = ints
       .filter((int) => int.touching.includes(i))
@@ -150,29 +130,38 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
     for (const [a, b] of pairs) {
       const from = a.vertex;
       const to = b.vertex;
-      const edgePoints = points.slice(a.bestIndex, b.bestIndex);
+      let edgePoints = points.slice(a.bestIndex, b.bestIndex);
+      
+      if (edgePoints.length < 2) {
+        edgePoints = [
+          lerp2(from, to, 0.1),
+          lerp2(from, to, 0.9),
+        ];
+      }
+      else if (edgePoints.length === 2) {
+        edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.66));
+        edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.33));
+      }
+      else if (edgePoints.length === 3) {
+        edgePoints.splice(2, 0, lerp2(edgePoints[1], edgePoints[2], 0.5));
+        edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.5));
+      }
 
       if (!isPointInsideLineSegment(edgePoints[0], from, edgePoints[1])) {
-        console.log('drop 1st');
-        //edgePoints.shift();
-      } else {
-        console.log('OK  1st');
+        edgePoints.shift();
       }
       if (!isPointInsideLineSegment(edgePoints[edgePoints.length-1], to, edgePoints[edgePoints.length-2])) {
-        console.log('drop last');
-        //edgePoints.pop();
-      } else {
-        console.log('OK  last');
+        edgePoints.pop();
       }
 
-      /* const firstP = edgePoints[0];
+      const firstP = edgePoints[0];
       if (dist(firstP, from) > 1) {
         edgePoints.unshift(lerp2(from, firstP, 0.1));
       }
       const lastP = edgePoints.at(-1) as Point;
       if (dist(lastP, to) > 1) {
         edgePoints.push(lerp2(to, lastP, 0.1));
-      } */
+      }
 
       const edge = {
         from,
@@ -191,7 +180,6 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
         else gfx.lineTo(p.x, p.y);
       }
     }
-    //console.log(lookFor);
   }
 
   console.log('vertices', vertices);
