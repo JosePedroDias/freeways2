@@ -127,6 +127,7 @@ setupKeyHandling((key, isDown): boolean => {
       if (segments.length > 1) {
         segments.splice(segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
+        roadsAuxCtn.removeChildren();
       }
       return true;
     }

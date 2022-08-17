@@ -1,6 +1,7 @@
 import { Segment } from './segment';
 
 import { Container, Graphics, Point, Text, TextStyle } from 'pixi.js';
+import { DijkstraCalculator } from 'dijkstra-calculator';
 
 import { combinationsOnce, combine2, pairUp } from './combinatorial';
 import {
@@ -9,7 +10,7 @@ import {
   getVersor,
   lerp2,
   averagePoint,
-  getLetter
+  getLetter,
 } from './geometry';
 import { getRandomColor2 } from './colors';
 
@@ -19,7 +20,11 @@ const BASIC_LINE_STYLE = {
   cap: 'round',
 };
 
-const BASIC_TEXT_OPTS:TextStyle = { fill: 0xffffff, fontSize: 14, align:'center' } as TextStyle;
+const BASIC_TEXT_OPTS: TextStyle = {
+  fill: 0xffffff,
+  fontSize: 14,
+  align: 'center',
+} as TextStyle;
 
 // https://en.wikipedia.org/wiki/Intersection_(Euclidean_geometry)#Two_lines
 // https://www.codegrepper.com/code-examples/javascript/javascript+get+point+of+line+intersection
@@ -94,6 +99,7 @@ type Edge = {
   from: Point;
   to: Point;
   points: Point[];
+  weight: number;
 };
 
 export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
@@ -179,17 +185,22 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
         edgePoints.push(lerp2(to, lastP, 0.1));
       }
 
+      let weight = 0;
+      for (let [a, b] of pairUp(edgePoints)) {
+        weight += dist(a, b);
+      }
+
       const edge = {
         from,
         to,
         points: edgePoints,
+        weight
       };
       edges.push(edge);
     }
   }
 
   // draw edges
-
   for (const [eIdx, edge] of Object.entries(edges)) {
     const points = edge.points;
 
@@ -204,8 +215,10 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     }
 
     const ctr = averagePoint(points);
-    const txt = new Text(getLetter(+eIdx, false), BASIC_TEXT_OPTS);
+    //const txt = new Text(`${getLetter(+eIdx, false)} (${edge.weight.toFixed(0)})`, BASIC_TEXT_OPTS);
+    const txt = new Text(`(${edge.weight.toFixed(0)})`, BASIC_TEXT_OPTS);
     txt.anchor.set(0.5);
+    txt.alpha = 0.66;
     txt.position.set(ctr.x, ctr.y);
     auxCtn.addChild(txt);
   }
@@ -218,10 +231,28 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     gfx.drawCircle(vtx.x, vtx.y, 5);
     gfx.endFill();
 
-    const txt = new Text(getLetter(+vIdx, true), BASIC_TEXT_OPTS);
+    const txt = new Text(getLetter(+vIdx, true), {...BASIC_TEXT_OPTS, fontSize: 18});
     txt.anchor.set(0.5);
     txt.position.set(vtx.x + 6, vtx.y + 6);
     auxCtn.addChild(txt);
+  }
+
+  // prepare graph
+  const graph = new DijkstraCalculator();
+
+  const toUpper = (n:string) => getLetter(+n, true);
+  
+  for (const [vIdx, _vtx] of Object.entries(vertices)) {
+    graph.addVertex(toUpper(vIdx));
+  }
+
+  for (const edge of edges) {
+    const fromIdx = vertices.indexOf(edge.from);
+    const toIdx = vertices.indexOf(edge.to);
+
+    graph.addEdge(getLetter(fromIdx, true), getLetter(toIdx, true), edge.weight);
+    // @ts-ignore
+    window.g = graph;
   }
 
   //console.log('vertices', vertices);

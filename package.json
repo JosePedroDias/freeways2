@@ -11,11 +11,9 @@
         "build": "tsc && vite build",
         "preview": "vite preview",
         "test": "vitest",
-        "lint": "npx eslint src",
-        "lint:fix": "npm run lint -- --fix",
-        "prettier": "npx prettier src --check",
-        "prettier:fix": "npm run prettier -- --write",
-        "format": "npm run prettier:fix && npm run lint:fix"
+        "lint": "npx eslint src --fix",
+        "prettier": "npx prettier src --check --write",
+        "format": "npm run prettier && npm run lint"
     },
     "devDependencies": {
         "@timohausmann/quadtree-ts": "^2.0.0-beta.1",
@@ -32,6 +30,7 @@
         "vitest": "^0.21.1"
     },
     "dependencies": {
-        "@pixi/sound": "^4.3.0"
+        "@pixi/sound": "^4.3.0",
+        "dijkstra-calculator": "^1.0.8"
     }
 }
