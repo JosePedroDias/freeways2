@@ -1,10 +1,25 @@
 import { Segment } from './segment';
 
-import { Graphics, Point } from 'pixi.js';
+import { Container, Graphics, Point, Text, TextStyle } from 'pixi.js';
 
 import { combinationsOnce, combine2, pairUp } from './combinatorial';
-import { angleBetweenVersors, dist, getVersor, lerp2 } from './geometry';
+import {
+  angleBetweenVersors,
+  dist,
+  getVersor,
+  lerp2,
+  averagePoint,
+  getLetter
+} from './geometry';
 import { getRandomColor2 } from './colors';
+
+const BASIC_LINE_STYLE = {
+  width: 4,
+  join: 'round',
+  cap: 'round',
+};
+
+const BASIC_TEXT_OPTS:TextStyle = { fill: 0xffffff, fontSize: 14, align:'center' } as TextStyle;
 
 // https://en.wikipedia.org/wiki/Intersection_(Euclidean_geometry)#Two_lines
 // https://www.codegrepper.com/code-examples/javascript/javascript+get+point+of+line+intersection
@@ -59,7 +74,7 @@ export function isPointInsideLineSegment(
   const v1 = getVersor(a, p);
   const v2 = getVersor(p, b);
   const ang = angleBetweenVersors(v1, v2);
-  return (Math.abs(ang) < Math.PI/2);
+  return Math.abs(ang) < Math.PI / 2;
 }
 
 export function doesSegmentSelfIntersect(segment: Segment): boolean {
@@ -81,11 +96,15 @@ type Edge = {
   points: Point[];
 };
 
-export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
+export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   const edges: Edge[] = [];
   const vertices: Point[] = [];
 
   const ints = [];
+
+  auxCtn.removeChildren();
+  const gfx = new Graphics();
+  auxCtn.addChild(gfx);
 
   gfx.clear();
   const segmentIndices = combinationsOnce(segments.length, true);
@@ -97,10 +116,6 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
     let int: Point | false = false;
     for (const [[l1a, l1b], [l2a, l2b]] of combine2(pairs1, pairs2)) {
       if ((int = lineLineCollidesAt(l1a, l1b, l2a, l2b))) {
-        gfx.beginFill(0xffffff, 0.75);
-        gfx.drawCircle(int.x, int.y, 5);
-        gfx.endFill();
-
         ints.push({ vertex: int, touching: [si1, si2] });
         vertices.push(int);
       }
@@ -131,18 +146,13 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
       const from = a.vertex;
       const to = b.vertex;
       let edgePoints = points.slice(a.bestIndex, b.bestIndex);
-      
+
       if (edgePoints.length < 2) {
-        edgePoints = [
-          lerp2(from, to, 0.1),
-          lerp2(from, to, 0.9),
-        ];
-      }
-      else if (edgePoints.length === 2) {
+        edgePoints = [lerp2(from, to, 0.1), lerp2(from, to, 0.9)];
+      } else if (edgePoints.length === 2) {
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.66));
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.33));
-      }
-      else if (edgePoints.length === 3) {
+      } else if (edgePoints.length === 3) {
         edgePoints.splice(2, 0, lerp2(edgePoints[1], edgePoints[2], 0.5));
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.5));
       }
@@ -150,7 +160,13 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
       if (!isPointInsideLineSegment(edgePoints[0], from, edgePoints[1])) {
         edgePoints.shift();
       }
-      if (!isPointInsideLineSegment(edgePoints[edgePoints.length-1], to, edgePoints[edgePoints.length-2])) {
+      if (
+        !isPointInsideLineSegment(
+          edgePoints[edgePoints.length - 1],
+          to,
+          edgePoints[edgePoints.length - 2],
+        )
+      ) {
         edgePoints.pop();
       }
 
@@ -169,19 +185,45 @@ export function segmentsToGraph(segments: Segment[], gfx: Graphics) {
         points: edgePoints,
       };
       edges.push(edge);
-      gfx.lineStyle({
-        width: 4,
-        color: getRandomColor2(64, 200, 64, 200, 64, 200),
-        join: 'round',
-        cap: 'round',
-      } as any);
-      for (const [i, p] of Object.entries(edge.points)) {
-        if (i === '0') gfx.moveTo(p.x, p.y);
-        else gfx.lineTo(p.x, p.y);
-      }
     }
   }
 
-  console.log('vertices', vertices);
-  console.log('edges', edges);
+  // draw edges
+
+  for (const [eIdx, edge] of Object.entries(edges)) {
+    const points = edge.points;
+
+    gfx.lineStyle({
+      ...BASIC_LINE_STYLE,
+      color: getRandomColor2(64, 200, 64, 200, 64, 200),
+    } as any);
+
+    for (const [i, p] of Object.entries(points)) {
+      if (i === '0') gfx.moveTo(p.x, p.y);
+      else gfx.lineTo(p.x, p.y);
+    }
+
+    const ctr = averagePoint(points);
+    const txt = new Text(getLetter(+eIdx, false), BASIC_TEXT_OPTS);
+    txt.anchor.set(0.5);
+    txt.position.set(ctr.x, ctr.y);
+    auxCtn.addChild(txt);
+  }
+
+  gfx.lineStyle(0);
+
+  // draw vertices
+  for (const [vIdx, vtx] of Object.entries(vertices)) {
+    gfx.beginFill(0xffffff, 0.66);
+    gfx.drawCircle(vtx.x, vtx.y, 5);
+    gfx.endFill();
+
+    const txt = new Text(getLetter(+vIdx, true), BASIC_TEXT_OPTS);
+    txt.anchor.set(0.5);
+    txt.position.set(vtx.x + 6, vtx.y + 6);
+    auxCtn.addChild(txt);
+  }
+
+  //console.log('vertices', vertices);
+  //console.log('edges', edges);
 }

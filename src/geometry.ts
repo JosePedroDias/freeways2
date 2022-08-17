@@ -39,13 +39,48 @@ export function angleBetweenVersors(v1: Point, v2: Point): number {
   return dAng;
 }
 
-export function lerp(a:number, b:number, r:number):number {
-  return a * (1-r) + b * r;
+export function lerp(a: number, b: number, r: number): number {
+  return a * (1 - r) + b * r;
 }
 
-export function lerp2(a:Point, b:Point, r:number):Point {
-  return new Point(
-    a.x * (1-r) + b.x * r,
-    a.y * (1-r) + b.y * r,
-  );
+export function lerp2(a: Point, b: Point, r: number): Point {
+  return new Point(a.x * (1 - r) + b.x * r, a.y * (1 - r) + b.y * r);
+}
+
+export function averagePoint(points: Point[]): Point {
+  const avg = new Point(0, 0);
+  for (const p of points) {
+    avg.x += p.x;
+    avg.y += p.y;
+  }
+  avg.x /= points.length;
+  avg.y /= points.length;
+  return avg;
+}
+
+const a_charCode = 'a'.charCodeAt(0);
+const A_charCode = 'A'.charCodeAt(0);
+
+export function getLetter(n: number, isUppercase: boolean): string {
+  const charCode = isUppercase ? A_charCode : a_charCode;
+
+  const b = [n];
+  let div;
+
+  let sp = 0;
+  while (sp < b.length) {
+    if (b[sp] > 25) {
+      div = Math.floor(b[sp] / 26);
+      b[sp + 1] = div - 1;
+      b[sp] %= 26;
+    }
+    sp += 1;
+  }
+
+  let out = '';
+  for (let i = 0; i < b.length; i += 1) {
+    out = String.fromCharCode(charCode + b[i]) + out;
+  }
+
+  return out;
 }

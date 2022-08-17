@@ -34,9 +34,11 @@ bg.interactive = true;
 app.stage.addChild(bg);
 
 const roadsCtn = new Container();
+const roadsAuxCtn = new Container();
 const carsAuxCtn = new Container();
 const carsCtn = new Container();
 app.stage.addChild(roadsCtn);
+app.stage.addChild(roadsAuxCtn);
 app.stage.addChild(carsAuxCtn);
 app.stage.addChild(carsCtn);
 
@@ -106,11 +108,6 @@ bg.on('pointerup', () => {
   segmentGfx = new Graphics();
   roadsCtn.addChild(segmentGfx);
 
-  /* console.log({
-    points:  segment.points.map(v => [simplifyNumber(v.x), simplifyNumber(v.y)]),
-    versors: segment.versors.map(v => [simplifyNumber(v.x, 3), simplifyNumber(v.y, 3)])
-  }); */
-
   segment = {
     points: [],
     versors: [],
@@ -120,13 +117,19 @@ bg.on('pointerup', () => {
 
 setupCarQtVis(app);
 
-const topoGfx = new Graphics();
-app.stage.addChild(topoGfx);
 setupKeyHandling((key, isDown): boolean => {
   //console.log(isDown ? 'down' : 'up  ', key);
-  if (isDown && key === ' ') {
-    segmentsToGraph(segments, topoGfx);
-    return true;
+  if (!isDown) {
+    if (key === ' ') {
+      segmentsToGraph(segments, roadsAuxCtn);
+      return true;
+    } else if (key === 'u') {
+      if (segments.length > 1) {
+        segments.splice(segments.length - 2, 1);
+        roadsCtn.removeChildAt(roadsCtn.children.length - 2);
+      }
+      return true;
+    }
   }
   return false;
 });

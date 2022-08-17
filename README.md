@@ -43,7 +43,7 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] road segment drawing action and visuals
 - [x] make cars move toward simple destinations
 - [x] detect proximity of other cars ahead and stop
-- [ ] extrapolate graph from intersection of roads
+- [x] extrapolate graph from intersection of roads
 - [ ] apply Dijkstra shortest path and tag segments accordingly
 - [ ] add sources and destinations to the map
 - [ ] make cars spawn from sources
@@ -53,7 +53,7 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [ ] accelerate time
 - [ ] detect traffic jam
 
-- [ ] undo support
+- [x] basic undo support
 - [ ] delete closest road
 - [ ] delete orphan segments
 - [ ] fix nearly perfect segments (position very close to existing one with versors not very far off)

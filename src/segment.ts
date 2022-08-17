@@ -53,12 +53,11 @@ export function updateGfx(segment: Segment, gfx: Graphics) {
   gfx.drawPolygon(path);
   gfx.endFill();
 
-  /* 
-    gfx.beginFill(0xFFFFFF, 0.25);
-    for (let {x, y} of segment.points) {
-      gfx.drawCircle(x, y, 1.5);
-    }
-    gfx.endFill();*/
+  /* gfx.beginFill(0xFFFFFF, 0.25);
+  for (let {x, y} of segment.points) {
+    gfx.drawCircle(x, y, 1.5);
+  }
+  gfx.endFill(); */
 }
 
 export function onMove(
