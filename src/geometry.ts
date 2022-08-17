@@ -38,3 +38,14 @@ export function angleBetweenVersors(v1: Point, v2: Point): number {
   else if (dAng < -Math.PI) dAng += 2 * Math.PI;
   return dAng;
 }
+
+export function lerp(a:number, b:number, r:number):number {
+  return a * (1-r) + b * r;
+}
+
+export function lerp2(a:Point, b:Point, r:number):Point {
+  return new Point(
+    a.x * (1-r) + b.x * r,
+    a.y * (1-r) + b.y * r,
+  );
+}

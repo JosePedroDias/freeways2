@@ -120,7 +120,7 @@ export function addCar(
       width: 3,
       color: tint,
       alpha: 0.33,
-      join: 'round', // these are not typed :/
+      join: 'round',
       cap: 'round',
     } as any);
 
