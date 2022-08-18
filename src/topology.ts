@@ -201,7 +201,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   }
 
   // draw edges
-  for (const [eIdx, edge] of Object.entries(edges)) {
+  for (const [_eIdx, edge] of Object.entries(edges)) {
     const points = edge.points;
 
     gfx.lineStyle({

@@ -3,9 +3,10 @@ import { Quadtree, Line } from '@timohausmann/quadtree-ts';
 
 import { W, H, BG_COLOR, SHOW_FPS } from './constants';
 import { Segment, onMove, updateGfx } from './segment';
-import { setupCarQtVis } from './car';
+import { addCar, setupCarQtVis } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
+import { importLevel, exportLevel } from './level';
 
 utils.skipHello();
 
@@ -57,10 +58,19 @@ if (SHOW_FPS) {
   });
 }
 
-let segmentGfx = new Graphics();
-roadsCtn.addChild(segmentGfx);
 
-const segments: Segment[] = [];
+
+// STATE
+let segments: Segment[] = [];
+{
+  const o = importLevel();
+  segments = o.segments;
+  for (let seg of segments) {
+    const _segmentGfx = new Graphics();
+    roadsCtn.addChild(_segmentGfx);
+    updateGfx(seg, _segmentGfx);
+  }
+}
 
 let segment: Segment = {
   points: [],
@@ -68,8 +78,8 @@ let segment: Segment = {
 };
 segments.push(segment);
 
-//let segment:Segment = exampleSegment;
-
+let segmentGfx = new Graphics();
+roadsCtn.addChild(segmentGfx);
 updateGfx(segment, segmentGfx);
 
 //if (true) {
@@ -120,23 +130,27 @@ setupCarQtVis(app);
 setupKeyHandling((key, isDown): boolean => {
   //console.log(isDown ? 'down' : 'up  ', key);
   if (!isDown) {
-    if (key === ' ') {
+    if (key === ' ') { // UPDATE SEGMENTS NAVIGATION GRAPH
       segmentsToGraph(segments, roadsAuxCtn);
       return true;
-    } else if (key === 'u') {
+    } else if (key === 'u') { // UNDO
       if (segments.length > 1) {
         segments.splice(segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
         roadsAuxCtn.removeChildren();
       }
       return true;
+    } else if (key === 's') { // EXPORT SEGMENTS
+      const out = exportLevel(segments);
+      console.log(out);
+      return true;
     }
   }
   return false;
 });
 
-/* for (let i = 0; i < 12; ++i) {
-  addCar(app, carsCtn, carsAuxCtn);
-} */
 
-//}
+// ~ STATE
+for (let i = 0; i < 12; ++i) {
+  addCar(app, carsCtn, carsAuxCtn);
+}
