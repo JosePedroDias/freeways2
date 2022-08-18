@@ -7,7 +7,8 @@ import { addCar, setupCarQtVis } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
-import { level as level1 } from './level1';
+import { level as level0 } from './level0';
+//import { level as level1 } from './level1';
 
 utils.skipHello();
 
@@ -60,7 +61,7 @@ if (SHOW_FPS) {
 }
 
 // STATE
-let level = importLevel(level1);
+let level = importLevel(level0); // level0 level1
 for (const seg of level.segments) {
   const _segmentGfx = new Graphics();
   roadsCtn.addChild(_segmentGfx);
@@ -96,14 +97,12 @@ bg.on('pointermove', (ev) => {
   } */
 });
 
-bg.on('pointerdown', () => {
-  isDown = true;
-});
+function onPointerUp(ev:Event) {
+  if (!isDown) return;
 
-bg.on('pointerup', () => {
   isDown = false;
 
-  if (doesSegmentSelfIntersect(segment)) {
+  if (ev.type === 'mouseleave' || doesSegmentSelfIntersect(segment)) {
     level.segments.pop();
     roadsCtn.removeChild(segmentGfx);
   }
@@ -116,7 +115,15 @@ bg.on('pointerup', () => {
     versors: [],
   };
   level.segments.push(segment);
+}
+
+bg.on('pointerdown', () => {
+  isDown = true;
 });
+
+bg.on('pointerup', onPointerUp);
+
+app.view.addEventListener('mouseleave', onPointerUp);
 
 setupCarQtVis(app);
 
