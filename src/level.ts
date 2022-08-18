@@ -1,5 +1,5 @@
 import { Point, Rectangle } from 'pixi.js';
-import { pairToPoint, simplifyPointToPair } from './aux';
+import { simplifyNumber, simplifyPointToPair, simplifyRectangleToArray4 } from './aux';
 import { Segment } from './segment';
 
 type ProtoSegment = {
@@ -9,6 +9,19 @@ type ProtoSegment = {
 
 export type ProtoLevel = {
   segments: ProtoSegment[];
+  origins: ProtoOrigin[];
+  destinations: ProtoDestination[];
+  obstacles: Obstacle[];
+};
+
+type ProtoDestination = {
+  name: string;
+  point: [number, number];
+  versor: [number, number];
+};
+
+type ProtoOrigin = ProtoDestination & {
+  spawnRate: number;
 };
 
 type Destination = {
@@ -35,27 +48,22 @@ type Level = {
 };
 
 export function importLevel(pl: ProtoLevel): Level {
-  return {
-    origins: [],
-    destinations: [],
-    obstacles: [],
-    segments: pl.segments.map((seg) => ({
-      points: seg.points.map(pairToPoint),
-      versors: seg.versors.map(pairToPoint),
-    })),
-  };
+  const s = JSON.stringify(pl);
+  return JSON.parse(s, (_key:string, val:any) => {
+    if (val instanceof Array && typeof val[0] === 'number') {
+      if (val.length === 2) return new Point(val[0], val[1]);
+      if (val.length === 4) return new Rectangle(val[0], val[1], val[2], val[3]);
+    }
+    return val;
+  });
 }
 
-export function exportLevel(segments: Segment[]): ProtoLevel {
-  const protoSegs = [];
-  for (const segment of segments) {
-    if (segment.points.length === 0) continue;
-    protoSegs.push({
-      points: segment.points.map(simplifyPointToPair),
-      versors: segment.versors.map(simplifyPointToPair),
-    });
-  }
-  return {
-    segments: protoSegs,
-  };
+export function exportLevel(l:Level): ProtoLevel {
+  const s = JSON.stringify(l, (_key:string, val:any)=> {
+    if (val instanceof Point) return simplifyPointToPair(val);
+    if (val instanceof Rectangle) return simplifyRectangleToArray4(val);
+    if (typeof val === 'number') return simplifyNumber(val);
+    return val;
+  });
+  return JSON.parse(s);
 }

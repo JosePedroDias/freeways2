@@ -1,5 +1,5 @@
 import { utils, Application, Graphics, Point, Container, Text } from 'pixi.js';
-import { Quadtree, Line } from '@timohausmann/quadtree-ts';
+// import { Quadtree, Line } from '@timohausmann/quadtree-ts';
 
 import { W, H, BG_COLOR, SHOW_FPS } from './constants';
 import { Segment, onMove, updateGfx } from './segment';
@@ -19,14 +19,14 @@ const app = new Application({
   autoDensity: true,
 });
 
-const qt = new Quadtree({
+document.body.appendChild(app.view);
+
+/* const qt = new Quadtree({
   width: W,
   height: H,
   maxObjects: 10, // optional, default: 10
   maxLevels: 4, // optional, default:  4
-});
-
-document.body.appendChild(app.view);
+}); */
 
 const bg = new Graphics();
 bg.beginFill(BG_COLOR);
@@ -60,22 +60,18 @@ if (SHOW_FPS) {
 }
 
 // STATE
-let segments: Segment[] = [];
-{
-  const o = importLevel(level1);
-  segments = o.segments;
-  for (const seg of segments) {
-    const _segmentGfx = new Graphics();
-    roadsCtn.addChild(_segmentGfx);
-    updateGfx(seg, _segmentGfx);
-  }
+let level = importLevel(level1);
+for (const seg of level.segments) {
+  const _segmentGfx = new Graphics();
+  roadsCtn.addChild(_segmentGfx);
+  updateGfx(seg, _segmentGfx);
 }
 
 let segment: Segment = {
   points: [],
   versors: [],
 };
-segments.push(segment);
+level.segments.push(segment);
 
 let segmentGfx = new Graphics();
 roadsCtn.addChild(segmentGfx);
@@ -86,8 +82,8 @@ bg.on('pointermove', (ev) => {
   if (!isDown) return;
 
   const p = ev.data.global as Point;
-  const potentialPair = onMove(segment, segmentGfx, p);
-  if (potentialPair) {
+  onMove(segment, segmentGfx, p);
+  /* if (potentialPair) {
     const [p1, p2] = potentialPair;
     qt.insert(
       new Line({
@@ -97,7 +93,7 @@ bg.on('pointermove', (ev) => {
         y2: p2.y,
       }),
     );
-  }
+  } */
 });
 
 bg.on('pointerdown', () => {
@@ -108,7 +104,7 @@ bg.on('pointerup', () => {
   isDown = false;
 
   if (doesSegmentSelfIntersect(segment)) {
-    segments.pop();
+    level.segments.pop();
     roadsCtn.removeChild(segmentGfx);
   }
 
@@ -119,7 +115,7 @@ bg.on('pointerup', () => {
     points: [],
     versors: [],
   };
-  segments.push(segment);
+  level.segments.push(segment);
 });
 
 setupCarQtVis(app);
@@ -129,19 +125,19 @@ setupKeyHandling((key, isDown): boolean => {
   if (!isDown) {
     if (key === ' ') {
       // UPDATE SEGMENTS NAVIGATION GRAPH
-      segmentsToGraph(segments, roadsAuxCtn);
+      segmentsToGraph(level.segments, roadsAuxCtn);
       return true;
     } else if (key === 'u') {
       // UNDO
-      if (segments.length > 1) {
-        segments.splice(segments.length - 2, 1);
+      if (level.segments.length > 1) {
+        level.segments.splice(level.segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
         roadsAuxCtn.removeChildren();
       }
       return true;
     } else if (key === 's') {
       // EXPORT SEGMENTS
-      const out = exportLevel(segments);
+      const out = exportLevel(level);
       console.log(out);
       return true;
     }
