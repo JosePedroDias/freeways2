@@ -99,7 +99,7 @@ export const qtSegments = new Quadtree({
   maxLevels: 4, // optional, default:  4
 });
 
-export function updateSegmentsQT(segments:Segment[]) {
+export function updateSegmentsQT(segments: Segment[]) {
   qtSegments.clear();
   for (const seg of segments) {
     for (const [p1, p2] of pairUp(seg.points)) {

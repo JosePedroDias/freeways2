@@ -139,7 +139,7 @@ setupKeyHandling((key, isDown): boolean => {
 const addCar = setupCars(app, carsCtn, carsAuxCtn);
 
 let numCars = 0;
-const timer = setInterval( () => {
+const timer = setInterval(() => {
   ++numCars;
   addCar();
   if (numCars > 12) {

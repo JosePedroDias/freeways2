@@ -16,7 +16,7 @@ import {
   dist,
 } from './geometry';
 import { updateQuadTreeGraphics, onlyColliding } from './quadExtras';
-import { getRandomColor } from './colors';
+import { getRandomColor2 } from './colors';
 import { whereToGo } from './topology';
 
 function getRandomPosition() {
@@ -112,10 +112,10 @@ const qtCars = new Quadtree({
 
 function updateCarsQT() {
   qtCars.clear();
-    for (const c of cars) {
-      qtCars.insert(c.updateShape());
-    }
-    extraShapes = [];
+  for (const c of cars) {
+    qtCars.insert(c.updateShape());
+  }
+  extraShapes = [];
 }
 
 export function setupCars(
@@ -173,7 +173,7 @@ export function setupCars(
     const c = new Car(
       getRandomPosition(),
       new Point(1, 0),
-      getRandomColor(),
+      getRandomColor2(64, 255, 64, 255, 64, 255),
       carsCtn,
       carsAuxCtn,
     );

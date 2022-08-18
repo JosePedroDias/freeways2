@@ -107,9 +107,9 @@ type Edge = {
   weight: number;
 };
 
-let vertices:Point[] = [];
-let edges:Edge[] = [];
-let graph:DijkstraCalculator;
+const vertices: Point[] = [];
+const edges: Edge[] = [];
+let graph: DijkstraCalculator;
 
 export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   const ints = [];
@@ -213,9 +213,9 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     if (DRAW_EDGES_LINES) {
       gfx.lineStyle({
         ...BASIC_LINE_STYLE,
-        color: getRandomColor2(64, 200, 64, 200, 64, 200),
+        color: getRandomColor2(64, 255, 64, 255, 64, 255),
       } as any);
-  
+
       for (const [i, p] of Object.entries(points)) {
         if (i === '0') gfx.moveTo(p.x, p.y);
         else gfx.lineTo(p.x, p.y);
@@ -241,7 +241,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
       gfx.drawCircle(vtx.x, vtx.y, 5);
       gfx.endFill();
     }
-    
+
     if (DRAW_VERTEX_LABELS) {
       const txt = new Text(vIdx, {
         ...BASIC_TEXT_OPTS,
@@ -269,34 +269,33 @@ function updateGraph() {
     const fromIdx = vertices.indexOf(edge.from);
     const toIdx = vertices.indexOf(edge.to);
 
-    graph.addEdge(
-      '' + fromIdx,
-      '' + toIdx,
-      edge.weight,
-    );
+    graph.addEdge('' + fromIdx, '' + toIdx, edge.weight);
   }
 }
 
-export function whereToGo(c:Car):Point[] {
+export function whereToGo(c: Car): Point[] {
   const carPos = c.sprite.position;
 
   const nearestVertex = nearestPoint(carPos, vertices);
   const nearestVertexIdx = vertices.indexOf(nearestVertex);
   //console.log('nearestVertex', nearestVertex);
   //console.log('nearestVertexIdx', nearestVertexIdx);
-  
+
   c.sprite.position = nearestVertex.clone();
 
   let destinationVertexIdx;
   do {
-    destinationVertexIdx = Math.floor( Math.random() * vertices.length );
+    destinationVertexIdx = Math.floor(Math.random() * vertices.length);
   } while (destinationVertexIdx === nearestVertexIdx);
 
   //const destinationVertex = vertices[destinationVertexIdx];
   //console.log('destinationVertexIdx', destinationVertexIdx);
   //console.log('destinationVertex', destinationVertex);
 
-  const path:string[] = graph.calculateShortestPath('' + nearestVertexIdx, '' + destinationVertexIdx)
+  const path: string[] = graph.calculateShortestPath(
+    '' + nearestVertexIdx,
+    '' + destinationVertexIdx,
+  );
   //console.log('path', path);
 
   const nextVertexIdx = +path[1];
@@ -304,9 +303,13 @@ export function whereToGo(c:Car):Point[] {
   //console.log('nextVertexIndex', nextVertexIndex);
   //console.log('nextVertex', nextVertex);
 
-  console.log(`${nearestVertexIdx} -> ${nextVertexIdx} ... ${destinationVertexIdx}`);
+  console.log(
+    `${nearestVertexIdx} -> ${nextVertexIdx} ... ${destinationVertexIdx}`,
+  );
 
-  if (!nextVertex) { return []; }
+  if (!nextVertex) {
+    return [];
+  }
 
   for (const edge of edges) {
     let tmp;
