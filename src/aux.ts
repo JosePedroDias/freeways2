@@ -15,6 +15,13 @@ export function simplifyPointToPair(p: Point): [number, number] {
   return [simplifyNumber(p.x), simplifyNumber(p.y)];
 }
 
-export function simplifyRectangleToArray4(r:Rectangle): [number, number, number, number] {
-  return [simplifyNumber(r.x), simplifyNumber(r.y), simplifyNumber(r.width), simplifyNumber(r.height)];
+export function simplifyRectangleToArray4(
+  r: Rectangle,
+): [number, number, number, number] {
+  return [
+    simplifyNumber(r.x),
+    simplifyNumber(r.y),
+    simplifyNumber(r.width),
+    simplifyNumber(r.height),
+  ];
 }

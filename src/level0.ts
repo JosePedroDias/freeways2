@@ -4,5 +4,5 @@ export const level: ProtoLevel = {
   segments: [],
   origins: [],
   destinations: [],
-  obstacles: []
+  obstacles: [],
 };

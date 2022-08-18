@@ -3,7 +3,7 @@ import { utils, Application, Graphics, Point, Container, Text } from 'pixi.js';
 
 import { W, H, BG_COLOR, SHOW_FPS } from './constants';
 import { Segment, onMove, updateGfx } from './segment';
-import { addCar, setupCarQtVis } from './car';
+import { setupCars } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
@@ -61,7 +61,7 @@ if (SHOW_FPS) {
 }
 
 // STATE
-let level = importLevel(level0); // level0 level1
+const level = importLevel(level0); // level0 level1
 for (const seg of level.segments) {
   const _segmentGfx = new Graphics();
   roadsCtn.addChild(_segmentGfx);
@@ -97,7 +97,7 @@ bg.on('pointermove', (ev) => {
   } */
 });
 
-function onPointerUp(ev:Event) {
+function onPointerUp(ev: Event) {
   if (!isDown) return;
 
   isDown = false;
@@ -125,7 +125,7 @@ bg.on('pointerup', onPointerUp);
 
 app.view.addEventListener('mouseleave', onPointerUp);
 
-setupCarQtVis(app);
+//setupCarQtVis(app);
 
 setupKeyHandling((key, isDown): boolean => {
   //console.log(isDown ? 'down' : 'up  ', key);
@@ -153,6 +153,7 @@ setupKeyHandling((key, isDown): boolean => {
 });
 
 // ~ STATE
-for (let i = 0; i < 12; ++i) {
-  addCar(app, carsCtn, carsAuxCtn);
+const addCar = setupCars(app, carsCtn, carsAuxCtn);
+for (let i = 0; i < 30; ++i) {
+  addCar();
 }

@@ -202,5 +202,5 @@ export const level: ProtoLevel = {
   ],
   origins: [],
   destinations: [],
-  obstacles: []
+  obstacles: [],
 };
