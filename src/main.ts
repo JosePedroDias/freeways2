@@ -7,6 +7,7 @@ import { addCar, setupCarQtVis } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
+import { level as level1 } from './level1';
 
 utils.skipHello();
 
@@ -58,14 +59,12 @@ if (SHOW_FPS) {
   });
 }
 
-
-
 // STATE
 let segments: Segment[] = [];
 {
-  const o = importLevel();
+  const o = importLevel(level1);
   segments = o.segments;
-  for (let seg of segments) {
+  for (const seg of segments) {
     const _segmentGfx = new Graphics();
     roadsCtn.addChild(_segmentGfx);
     updateGfx(seg, _segmentGfx);
@@ -82,8 +81,6 @@ let segmentGfx = new Graphics();
 roadsCtn.addChild(segmentGfx);
 updateGfx(segment, segmentGfx);
 
-//if (true) {
-// allow drawing segments
 let isDown = false;
 bg.on('pointermove', (ev) => {
   if (!isDown) return;
@@ -130,17 +127,20 @@ setupCarQtVis(app);
 setupKeyHandling((key, isDown): boolean => {
   //console.log(isDown ? 'down' : 'up  ', key);
   if (!isDown) {
-    if (key === ' ') { // UPDATE SEGMENTS NAVIGATION GRAPH
+    if (key === ' ') {
+      // UPDATE SEGMENTS NAVIGATION GRAPH
       segmentsToGraph(segments, roadsAuxCtn);
       return true;
-    } else if (key === 'u') { // UNDO
+    } else if (key === 'u') {
+      // UNDO
       if (segments.length > 1) {
         segments.splice(segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
         roadsAuxCtn.removeChildren();
       }
       return true;
-    } else if (key === 's') { // EXPORT SEGMENTS
+    } else if (key === 's') {
+      // EXPORT SEGMENTS
       const out = exportLevel(segments);
       console.log(out);
       return true;
@@ -148,7 +148,6 @@ setupKeyHandling((key, isDown): boolean => {
   }
   return false;
 });
-
 
 // ~ STATE
 for (let i = 0; i < 12; ++i) {

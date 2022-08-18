@@ -186,7 +186,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
       }
 
       let weight = 0;
-      for (let [a, b] of pairUp(edgePoints)) {
+      for (const [a, b] of pairUp(edgePoints)) {
         weight += dist(a, b);
       }
 
@@ -194,7 +194,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
         from,
         to,
         points: edgePoints,
-        weight
+        weight,
       };
       edges.push(edge);
     }
@@ -231,7 +231,10 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     gfx.drawCircle(vtx.x, vtx.y, 5);
     gfx.endFill();
 
-    const txt = new Text(getLetter(+vIdx, true), {...BASIC_TEXT_OPTS, fontSize: 18});
+    const txt = new Text(getLetter(+vIdx, true), {
+      ...BASIC_TEXT_OPTS,
+      fontSize: 18,
+    });
     txt.anchor.set(0.5);
     txt.position.set(vtx.x + 6, vtx.y + 6);
     auxCtn.addChild(txt);
@@ -240,8 +243,8 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   // prepare graph
   const graph = new DijkstraCalculator();
 
-  const toUpper = (n:string) => getLetter(+n, true);
-  
+  const toUpper = (n: string) => getLetter(+n, true);
+
   for (const [vIdx, _vtx] of Object.entries(vertices)) {
     graph.addVertex(toUpper(vIdx));
   }
@@ -250,7 +253,11 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     const fromIdx = vertices.indexOf(edge.from);
     const toIdx = vertices.indexOf(edge.to);
 
-    graph.addEdge(getLetter(fromIdx, true), getLetter(toIdx, true), edge.weight);
+    graph.addEdge(
+      getLetter(fromIdx, true),
+      getLetter(toIdx, true),
+      edge.weight,
+    );
     // @ts-ignore
     window.g = graph;
   }
