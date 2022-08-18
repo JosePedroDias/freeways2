@@ -10,6 +10,12 @@ export function dist(p1: Point, p2: Point): number {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+export function distSquared(p1: Point, p2: Point): number {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  return dx * dx + dy * dy;
+}
+
 export function getVersor(p1: Point, p2: Point): Point {
   const dx = p2.x - p1.x;
   const dy = p2.y - p1.y;
@@ -58,8 +64,23 @@ export function averagePoint(points: Point[]): Point {
   return avg;
 }
 
+export function nearestPoint(from:Point, points: Point[]): Point {
+  let minDist = -1;
+  let candidate:Point = new Point(0, 0);
+  for (const p of points) {
+    const dSq = distSquared(p, from);
+    if (minDist === -1 || dSq < minDist) {
+      candidate = p;
+      minDist = dSq;
+    }
+  }
+  return candidate;
+}
+
 const a_charCode = 'a'.charCodeAt(0);
 const A_charCode = 'A'.charCodeAt(0);
+
+const lettersBackToIndices = new Map<string, number>();
 
 export function getLetter(n: number, isUppercase: boolean): string {
   const charCode = isUppercase ? A_charCode : a_charCode;
@@ -77,10 +98,16 @@ export function getLetter(n: number, isUppercase: boolean): string {
     sp += 1;
   }
 
-  let out = '';
+  let label = '';
   for (let i = 0; i < b.length; i += 1) {
-    out = String.fromCharCode(charCode + b[i]) + out;
+    label = String.fromCharCode(charCode + b[i]) + label;
   }
 
-  return out;
+  lettersBackToIndices.set(label, n);
+
+  return label;
+}
+
+export function getIndexFromLetter(label:string):number {
+  return lettersBackToIndices.get(label) as number; // TODO 
 }

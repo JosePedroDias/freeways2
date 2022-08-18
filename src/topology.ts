@@ -1,8 +1,7 @@
-import { Segment } from './segment';
-
 import { Container, Graphics, Point, Text, TextStyle } from 'pixi.js';
 import { DijkstraCalculator } from 'dijkstra-calculator';
 
+import { Segment, updateSegmentsQT } from './segment';
 import { combinationsOnce, combine2, pairUp } from './combinatorial';
 import {
   angleBetweenVersors,
@@ -10,9 +9,15 @@ import {
   getVersor,
   lerp2,
   averagePoint,
-  getLetter,
+  nearestPoint,
 } from './geometry';
 import { getRandomColor2 } from './colors';
+import { Car } from './car';
+
+const DRAW_EDGES_LINES = true;
+const DRAW_EDGES_LABELS = false;
+const DRAW_VERTICES = false;
+const DRAW_VERTEX_LABELS = true;
 
 const BASIC_LINE_STYLE = {
   width: 4,
@@ -102,10 +107,11 @@ type Edge = {
   weight: number;
 };
 
-export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
-  const edges: Edge[] = [];
-  const vertices: Point[] = [];
+let vertices:Point[] = [];
+let edges:Edge[] = [];
+let graph:DijkstraCalculator;
 
+export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   const ints = [];
 
   auxCtn.removeChildren();
@@ -204,49 +210,59 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   for (const [_eIdx, edge] of Object.entries(edges)) {
     const points = edge.points;
 
-    gfx.lineStyle({
-      ...BASIC_LINE_STYLE,
-      color: getRandomColor2(64, 200, 64, 200, 64, 200),
-    } as any);
-
-    for (const [i, p] of Object.entries(points)) {
-      if (i === '0') gfx.moveTo(p.x, p.y);
-      else gfx.lineTo(p.x, p.y);
+    if (DRAW_EDGES_LINES) {
+      gfx.lineStyle({
+        ...BASIC_LINE_STYLE,
+        color: getRandomColor2(64, 200, 64, 200, 64, 200),
+      } as any);
+  
+      for (const [i, p] of Object.entries(points)) {
+        if (i === '0') gfx.moveTo(p.x, p.y);
+        else gfx.lineTo(p.x, p.y);
+      }
     }
 
-    const ctr = averagePoint(points);
-    //const txt = new Text(`${getLetter(+eIdx, false)} (${edge.weight.toFixed(0)})`, BASIC_TEXT_OPTS);
-    const txt = new Text(`(${edge.weight.toFixed(0)})`, BASIC_TEXT_OPTS);
-    txt.anchor.set(0.5);
-    txt.alpha = 0.66;
-    txt.position.set(ctr.x, ctr.y);
-    auxCtn.addChild(txt);
+    if (DRAW_EDGES_LABELS) {
+      const ctr = averagePoint(points);
+      const txt = new Text(`(${edge.weight.toFixed(0)})`, BASIC_TEXT_OPTS);
+      txt.anchor.set(0.5);
+      txt.alpha = 0.66;
+      txt.position.set(ctr.x, ctr.y);
+      auxCtn.addChild(txt);
+    }
   }
 
   gfx.lineStyle(0);
 
   // draw vertices
   for (const [vIdx, vtx] of Object.entries(vertices)) {
-    gfx.beginFill(0xffffff, 0.66);
-    gfx.drawCircle(vtx.x, vtx.y, 5);
-    gfx.endFill();
-
-    const txt = new Text(getLetter(+vIdx, true), {
-      ...BASIC_TEXT_OPTS,
-      fontSize: 18,
-    });
-    txt.anchor.set(0.5);
-    txt.position.set(vtx.x + 6, vtx.y + 6);
-    auxCtn.addChild(txt);
+    if (DRAW_VERTICES) {
+      gfx.beginFill(0xffffff, 0.66);
+      gfx.drawCircle(vtx.x, vtx.y, 5);
+      gfx.endFill();
+    }
+    
+    if (DRAW_VERTEX_LABELS) {
+      const txt = new Text(vIdx, {
+        ...BASIC_TEXT_OPTS,
+        fontSize: 18,
+      });
+      txt.anchor.set(0.5);
+      txt.position.set(vtx.x + 6, vtx.y + 6);
+      auxCtn.addChild(txt);
+    }
   }
 
-  // prepare graph
-  const graph = new DijkstraCalculator();
+  updateGraph();
 
-  const toUpper = (n: string) => getLetter(+n, true);
+  updateSegmentsQT(segments);
+}
+
+function updateGraph() {
+  graph = new DijkstraCalculator();
 
   for (const [vIdx, _vtx] of Object.entries(vertices)) {
-    graph.addVertex(toUpper(vIdx));
+    graph.addVertex(vIdx);
   }
 
   for (const edge of edges) {
@@ -254,14 +270,60 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     const toIdx = vertices.indexOf(edge.to);
 
     graph.addEdge(
-      getLetter(fromIdx, true),
-      getLetter(toIdx, true),
+      '' + fromIdx,
+      '' + toIdx,
       edge.weight,
     );
-    // @ts-ignore
-    window.g = graph;
+  }
+}
+
+export function whereToGo(c:Car):Point[] {
+  const carPos = c.sprite.position;
+
+  const nearestVertex = nearestPoint(carPos, vertices);
+  const nearestVertexIdx = vertices.indexOf(nearestVertex);
+  //console.log('nearestVertex', nearestVertex);
+  //console.log('nearestVertexIdx', nearestVertexIdx);
+  
+  c.sprite.position = nearestVertex.clone();
+
+  let destinationVertexIdx;
+  do {
+    destinationVertexIdx = Math.floor( Math.random() * vertices.length );
+  } while (destinationVertexIdx === nearestVertexIdx);
+
+  //const destinationVertex = vertices[destinationVertexIdx];
+  //console.log('destinationVertexIdx', destinationVertexIdx);
+  //console.log('destinationVertex', destinationVertex);
+
+  const path:string[] = graph.calculateShortestPath('' + nearestVertexIdx, '' + destinationVertexIdx)
+  //console.log('path', path);
+
+  const nextVertexIdx = +path[1];
+  const nextVertex = vertices[nextVertexIdx];
+  //console.log('nextVertexIndex', nextVertexIndex);
+  //console.log('nextVertex', nextVertex);
+
+  console.log(`${nearestVertexIdx} -> ${nextVertexIdx} ... ${destinationVertexIdx}`);
+
+  if (!nextVertex) { return []; }
+
+  for (const edge of edges) {
+    let tmp;
+    if (edge.from === nearestVertex && edge.to === nextVertex) {
+      tmp = Array.from(edge.points);
+    }
+    if (edge.to === nearestVertex && edge.from === nextVertex) {
+      tmp = Array.from(edge.points);
+      tmp.reverse();
+    }
+
+    if (tmp) {
+      return tmp;
+    }
   }
 
-  //console.log('vertices', vertices);
-  //console.log('edges', edges);
+  return [];
 }
+
+//function getGraph():DijkstraCalculator

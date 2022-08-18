@@ -17,6 +17,7 @@ import {
 } from './geometry';
 import { updateQuadTreeGraphics, onlyColliding } from './quadExtras';
 import { getRandomColor } from './colors';
+import { whereToGo } from './topology';
 
 function getRandomPosition() {
   return new Point(Math.random() * W, Math.random() * H);
@@ -43,6 +44,7 @@ export class Car {
   shape: Circle | undefined;
   color: number;
   destination: Point | undefined;
+  destinations: Point[] = [];
 
   constructor(
     _position: Point,
@@ -90,7 +92,14 @@ export class Car {
   }
 
   updateDestination() {
-    this.setDestination(getRandomPosition());
+    const dest = this.destinations.shift();
+    if (dest) {
+      this.setDestination(dest);
+    } else {
+      this.destinations = whereToGo(this);
+      this.updateDestination();
+    }
+    //this.setDestination(getRandomPosition());
   }
 }
 
@@ -100,6 +109,14 @@ const qtCars = new Quadtree({
   maxObjects: 10, // optional, default: 10
   maxLevels: 4, // optional, default:  4
 });
+
+function updateCarsQT() {
+  qtCars.clear();
+    for (const c of cars) {
+      qtCars.insert(c.updateShape());
+    }
+    extraShapes = [];
+}
 
 export function setupCars(
   app: Application,
@@ -113,12 +130,8 @@ export function setupCars(
     const deltaSecs = app.ticker.deltaMS / 1000;
 
     // quad tree update
-    qtCars.clear();
-    for (const c of cars) {
-      qtCars.insert(c.updateShape());
-    }
+    updateCarsQT();
     SHOW_CAR_COLLISIONS && updateQuadTreeGraphics(qtCars, qtGfx, extraShapes);
-    extraShapes = [];
 
     // car movement
     for (const c of cars) {
@@ -164,7 +177,7 @@ export function setupCars(
       carsCtn,
       carsAuxCtn,
     );
-    c.setDestination(getRandomPosition());
+    c.updateDestination();
   };
 }
 

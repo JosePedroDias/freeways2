@@ -1,14 +1,12 @@
 import { utils, Application, Graphics, Point, Container, Text } from 'pixi.js';
-// import { Quadtree, Line } from '@timohausmann/quadtree-ts';
 
 import { W, H, BG_COLOR, SHOW_FPS } from './constants';
-import { Segment, onMove, updateGfx } from './segment';
+import { Segment, onMove, updateSegmentGfx } from './segment';
 import { setupCars } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
-import { level as level0 } from './level0';
-//import { level as level1 } from './level1';
+import { level as level_ } from './level2';
 
 utils.skipHello();
 
@@ -21,13 +19,6 @@ const app = new Application({
 });
 
 document.body.appendChild(app.view);
-
-/* const qt = new Quadtree({
-  width: W,
-  height: H,
-  maxObjects: 10, // optional, default: 10
-  maxLevels: 4, // optional, default:  4
-}); */
 
 const bg = new Graphics();
 bg.beginFill(BG_COLOR);
@@ -61,11 +52,11 @@ if (SHOW_FPS) {
 }
 
 // STATE
-const level = importLevel(level0); // level0 level1
+const level = importLevel(level_);
 for (const seg of level.segments) {
   const _segmentGfx = new Graphics();
   roadsCtn.addChild(_segmentGfx);
-  updateGfx(seg, _segmentGfx);
+  updateSegmentGfx(seg, _segmentGfx);
 }
 
 let segment: Segment = {
@@ -76,7 +67,8 @@ level.segments.push(segment);
 
 let segmentGfx = new Graphics();
 roadsCtn.addChild(segmentGfx);
-updateGfx(segment, segmentGfx);
+updateSegmentGfx(segment, segmentGfx);
+segmentsToGraph(level.segments, roadsAuxCtn);
 
 let isDown = false;
 bg.on('pointermove', (ev) => {
@@ -84,17 +76,6 @@ bg.on('pointermove', (ev) => {
 
   const p = ev.data.global as Point;
   onMove(segment, segmentGfx, p);
-  /* if (potentialPair) {
-    const [p1, p2] = potentialPair;
-    qt.insert(
-      new Line({
-        x1: p1.x,
-        y1: p1.y,
-        x2: p2.x,
-        y2: p2.y,
-      }),
-    );
-  } */
 });
 
 function onPointerUp(ev: Event) {
@@ -102,7 +83,9 @@ function onPointerUp(ev: Event) {
 
   isDown = false;
 
-  if (ev.type === 'mouseleave' || doesSegmentSelfIntersect(segment)) {
+  const skip = ev.type === 'mouseleave' || doesSegmentSelfIntersect(segment);
+
+  if (skip) {
     level.segments.pop();
     roadsCtn.removeChild(segmentGfx);
   }
@@ -115,9 +98,14 @@ function onPointerUp(ev: Event) {
     versors: [],
   };
   level.segments.push(segment);
+
+  if (!skip) {
+    segmentsToGraph(level.segments, roadsAuxCtn);
+  }
 }
 
 bg.on('pointerdown', () => {
+  //console.log(ev); // TODO: ignore right mouse clicks! event doesn't seem to carry correct button?
   isDown = true;
 });
 
@@ -125,21 +113,16 @@ bg.on('pointerup', onPointerUp);
 
 app.view.addEventListener('mouseleave', onPointerUp);
 
-//setupCarQtVis(app);
-
 setupKeyHandling((key, isDown): boolean => {
   //console.log(isDown ? 'down' : 'up  ', key);
   if (!isDown) {
-    if (key === ' ') {
-      // UPDATE SEGMENTS NAVIGATION GRAPH
-      segmentsToGraph(level.segments, roadsAuxCtn);
-      return true;
-    } else if (key === 'u') {
+    if (key === 'u') {
       // UNDO
       if (level.segments.length > 1) {
         level.segments.splice(level.segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
         roadsAuxCtn.removeChildren();
+        segmentsToGraph(level.segments, roadsAuxCtn);
       }
       return true;
     } else if (key === 's') {
@@ -154,6 +137,12 @@ setupKeyHandling((key, isDown): boolean => {
 
 // ~ STATE
 const addCar = setupCars(app, carsCtn, carsAuxCtn);
-for (let i = 0; i < 30; ++i) {
+
+let numCars = 0;
+const timer = setInterval( () => {
+  ++numCars;
   addCar();
-}
+  if (numCars > 12) {
+    clearInterval(timer);
+  }
+}, 800);

@@ -1,13 +1,16 @@
 import { Graphics, Point } from 'pixi.js';
+import { Quadtree, Line } from '@timohausmann/quadtree-ts';
+
 import { rotate90Degrees, distXY, dist, getVersor } from './geometry';
-import { MIN_DIST, ROAD_COLORS, ROAD_RADIUS } from './constants';
+import { H, MIN_DIST, ROAD_COLORS, ROAD_RADIUS, W } from './constants';
+import { pairUp } from './combinatorial';
 
 export type Segment = {
   points: Point[];
   versors: Point[];
 };
 
-export function updateGfx(segment: Segment, gfx: Graphics) {
+export function updateSegmentGfx(segment: Segment, gfx: Graphics) {
   gfx.clear();
 
   gfx.lineStyle(0);
@@ -68,7 +71,7 @@ export function onMove(
   const lastP = segment.points.at(-1);
   if (!lastP) {
     segment.points.push(p.clone());
-    updateGfx(segment, gfx);
+    updateSegmentGfx(segment, gfx);
   } else {
     const d = dist(lastP, p);
     if (d > MIN_DIST) {
@@ -76,7 +79,7 @@ export function onMove(
       const v = getVersor(p, lastP);
       segment.versors.push(v);
 
-      updateGfx(segment, gfx);
+      updateSegmentGfx(segment, gfx);
 
       const v0 = segment.points.at(-2);
       const v1 = segment.points.at(-1);
@@ -86,4 +89,28 @@ export function onMove(
     }
   }
   return undefined;
+}
+
+// TODO DITCH THIS
+export const qtSegments = new Quadtree({
+  width: W,
+  height: H,
+  maxObjects: 10, // optional, default: 10
+  maxLevels: 4, // optional, default:  4
+});
+
+export function updateSegmentsQT(segments:Segment[]) {
+  qtSegments.clear();
+  for (const seg of segments) {
+    for (const [p1, p2] of pairUp(seg.points)) {
+      qtSegments.insert(
+        new Line({
+          x1: p1.x,
+          y1: p1.y,
+          x2: p2.x,
+          y2: p2.y,
+        }),
+      );
+    }
+  }
 }

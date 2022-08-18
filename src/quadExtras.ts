@@ -69,7 +69,15 @@ export function onlyColliding(testObj: any, candidates: any[]): any[] {
         if (circleCircleCollides(testObj, candidate)) {
           collided.push(candidate);
         }
-      } else {
+      } /*else if (candidate instanceof Line) {
+        // ASSUME LINE ~ CIRCLE CENTERED ON ITS CENTER AND RADIUS DIST/2
+        const x = (candidate.x1 + candidate.x2) / 2;
+        const y = (candidate.y1 + candidate.y2) / 2;
+        const r = distXY(candidate.x1 - candidate.x2, candidate.y1 - candidate.y2) / 2;
+        if (circleCircleCollides(testObj, new Circle({ x, y, r }))) {
+          collided.push(candidate);
+        }
+      } */ else {
         throw new Error('unsupported');
       }
     }
