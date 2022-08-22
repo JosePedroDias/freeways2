@@ -1,12 +1,23 @@
-import { utils, Application, Graphics, Point, Container, Text } from 'pixi.js';
+import {
+  utils,
+  Application,
+  Graphics,
+  Point,
+  Container,
+  Text,
+  Texture,
+  TilingSprite,
+  Sprite,
+} from 'pixi.js';
 
-import { W, H, BG_COLOR, SHOW_FPS } from './constants';
+import { W, H, SHOW_FPS } from './constants';
 import { Segment, onMove, updateSegmentGfx } from './segment';
 import { setupCars } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
-import { level as level_ } from './level2';
+import { level as level_ } from './level1';
+import { parseSpritesheet } from './landmarks';
 
 utils.skipHello();
 
@@ -20,12 +31,30 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 
-const bg = new Graphics();
+////
+
+parseSpritesheet().then((ss) => {
+  const sp = Sprite.from(ss.train);
+  sp.position.set(100, 100);
+  app.stage.addChild(sp);
+});
+
+////
+
+const texture = Texture.from('assets/grass.png'); // water grass
+
+const bg = new TilingSprite(texture, app.screen.width, app.screen.height);
+bg.interactive = true;
+app.stage.addChild(bg);
+
+////
+
+/* const bg = new Graphics();
 bg.beginFill(BG_COLOR);
 bg.drawRect(0, 0, W, H);
 bg.endFill();
 bg.interactive = true;
-app.stage.addChild(bg);
+app.stage.addChild(bg); */
 
 const roadsCtn = new Container();
 const roadsAuxCtn = new Container();
@@ -142,7 +171,7 @@ let numCars = 0;
 const timer = setInterval(() => {
   ++numCars;
   addCar();
-  if (numCars > 12) {
+  if (numCars > 0) {
     clearInterval(timer);
   }
 }, 800);

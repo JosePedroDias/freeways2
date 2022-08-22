@@ -8,16 +8,18 @@ https://pixijs.io/guides/
 https://pixijs.download/release/docs/index.html
 https://pixijs.io/examples/
 
+animatedSprite and spriteSheet https://pixijs.download/dev/docs/PIXI.AnimatedSprite.html
+
 
 https://pixijs.io/examples/#/demos-advanced/collision-detection.js
 https://pixijs.io/examples/#/demos-advanced/mouse-trail.js
 https://pixijs.io/examples/#/graphics/dynamic.js
 
-https://github.com/timohausmann/quadtree-ts/
+https://github.com/timohausmann/quadtree-ts/ <-
 https://timohausmann.github.io/quadtree-js/dynamic.html
 alternative https://github.com/CorentinTh/quadtree-js
 
-https://github.com/getditto/dijkstra-calculator
+https://github.com/getditto/dijkstra-calculator <-
 https://github.com/tcort/dijkstrajs
 https://github.com/ProfDeCube/dijkstrajs
 https://github.com/chen0040/js-graph-algorithms
@@ -36,6 +38,9 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 ## CREDITS
 
 - using assets from this bundle as stubs https://gamesupply.itch.io/cars-and-trucks
+- grass https://naldzgraphics.net/free-seamless-grass-textures/
+- map landmarks https://www.uidownload.com/en/vector-jkmmc
+- water https://www.sketchuptextureclub.com/textures/nature-elements/water/sea-water
 
 
 ## TODO
@@ -44,21 +49,20 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] make cars move toward simple destinations
 - [x] detect proximity of other cars ahead and stop
 - [x] extrapolate graph from intersection of roads
-- [ ] apply Dijkstra shortest path and tag segments accordingly
+- [x] apply Dijkstra shortest path and tag segments accordingly
 - [ ] add sources and destinations to the map
 - [ ] make cars spawn from sources
-- [ ] make cars pick closest road connected to destination
 - [ ] make cars die on destinations
 - [ ] aux vis: display connected roads
 - [ ] accelerate time
 - [ ] detect traffic jam
+- [ ] support ramps and multiple layers
+- [ ] add obstacles - passable (over water) and blocking (buildings)
 
 - [x] basic undo support
-- [ ] delete closest road
-- [ ] delete orphan segments
+- [x] delete closest road
+- [x] delete orphan segments
 - [ ] fix nearly perfect segments (position very close to existing one with versors not very far off)
-- [ ] support ramps and multiple layers
-- [ ] add obstacles - roads can't go there
 - [ ] draw obstacles with procedural drawing
 - [ ] draw origins and destinations with location name signs
 - [ ] basic event sounds
