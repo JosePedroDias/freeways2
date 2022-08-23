@@ -1,4 +1,9 @@
 import { ProtoLevel } from './level';
+import { W, H } from './constants';
+
+const W2 = W / 2;
+const H2 = H / 2;
+const L = H / 15;
 
 export const level: ProtoLevel = {
   segments: [
@@ -199,8 +204,48 @@ export const level: ProtoLevel = {
         [0.7, -0.7],
       ],
     },
+    {
+      points: [
+        [0, H2],
+        [L, H2],
+      ],
+      versors: [[1, 0]],
+    },
+    {
+      points: [
+        [W, H2],
+        [W - L, H2],
+      ],
+      versors: [[-1, 0]],
+    },
   ],
-  origins: [],
-  destinations: [],
-  obstacles: [],
+  origins: [
+    {
+      name: 'asd',
+      point: [0, H2],
+      versor: [1, 0],
+      spawnRate: 1,
+    },
+  ],
+  destinations: [
+    {
+      name: 'asd2',
+      point: [W, H2],
+      versor: [1, 0],
+    },
+  ],
+  obstacles: [
+    {
+      blocksRoads: true,
+      rect: [W2 - 2 * L, 0.75 * (H2 - L), 4 * L, 2 * L],
+      // @ts-ignore
+      color: 0xff00ff,
+      // @ts-ignore
+      landmarkSprite: 'bus',
+    },
+    {
+      blocksRoads: false,
+      rect: [3 * L, H - 4 * L, 5 * L, 3 * L],
+    },
+  ],
 };

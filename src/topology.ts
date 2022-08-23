@@ -115,6 +115,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   const ints = [];
 
   auxCtn.removeChildren();
+
   const gfx = new Graphics();
   auxCtn.addChild(gfx);
 

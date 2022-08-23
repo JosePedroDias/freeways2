@@ -15,7 +15,7 @@ export type ProtoLevel = {
   segments: ProtoSegment[];
   origins: ProtoOrigin[];
   destinations: ProtoDestination[];
-  obstacles: Obstacle[];
+  obstacles: ProtoObstacle[];
 };
 
 type ProtoDestination = {
@@ -28,20 +28,32 @@ type ProtoOrigin = ProtoDestination & {
   spawnRate: number;
 };
 
-type Destination = {
+export type Destination = {
   name: string;
   point: Point;
   versor: Point;
 };
 
-type Origin = Destination & {
+export type Origin = Destination & {
   spawnRate: number;
 };
 
-type Obstacle = {
+export type BlockingObstacle = {
   rect: Rectangle;
   color: number;
-  blocksRoads: boolean;
+  landmarkSprite: string;
+  blocksRoads: true;
+};
+
+export type WaterObstacle = {
+  rect: Rectangle;
+  blocksRoads: false;
+};
+
+export type Obstacle = BlockingObstacle | WaterObstacle;
+
+type ProtoObstacle = Omit<Obstacle, 'rect'> & {
+  rect: [number, number, number, number];
 };
 
 type Level = {

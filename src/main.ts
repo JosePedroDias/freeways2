@@ -7,7 +7,6 @@ import {
   Text,
   Texture,
   TilingSprite,
-  Sprite,
 } from 'pixi.js';
 
 import { W, H, SHOW_FPS } from './constants';
@@ -17,7 +16,7 @@ import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
 import { level as level_ } from './level1';
-import { parseSpritesheet } from './landmarks';
+import { init, drawObstacle } from './landmarks';
 
 utils.skipHello();
 
@@ -31,35 +30,18 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 
-////
+const bgTexture = Texture.from('assets/grass.png');
 
-parseSpritesheet().then((ss) => {
-  const sp = Sprite.from(ss.train);
-  sp.position.set(100, 100);
-  app.stage.addChild(sp);
-});
-
-////
-
-const texture = Texture.from('assets/grass.png'); // water grass
-
-const bg = new TilingSprite(texture, app.screen.width, app.screen.height);
+const bg = new TilingSprite(bgTexture, app.screen.width, app.screen.height);
 bg.interactive = true;
 app.stage.addChild(bg);
 
-////
-
-/* const bg = new Graphics();
-bg.beginFill(BG_COLOR);
-bg.drawRect(0, 0, W, H);
-bg.endFill();
-bg.interactive = true;
-app.stage.addChild(bg); */
-
+const obstaclesCtn = new Container();
 const roadsCtn = new Container();
 const roadsAuxCtn = new Container();
 const carsAuxCtn = new Container();
 const carsCtn = new Container();
+app.stage.addChild(obstaclesCtn);
 app.stage.addChild(roadsCtn);
 app.stage.addChild(roadsAuxCtn);
 app.stage.addChild(carsAuxCtn);
@@ -87,6 +69,12 @@ for (const seg of level.segments) {
   roadsCtn.addChild(_segmentGfx);
   updateSegmentGfx(seg, _segmentGfx);
 }
+init().then(() => {
+  for (const obs of level.obstacles) {
+    const ctn = drawObstacle(obs);
+    obstaclesCtn.addChild(ctn);
+  }
+});
 
 let segment: Segment = {
   points: [],
