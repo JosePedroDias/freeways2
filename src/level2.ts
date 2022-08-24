@@ -1,45 +1,35 @@
 import { PointArr, ProtoLevel } from './level';
 import { W, H } from './constants';
 import { rgbToNumber } from './colors';
+import { uctArr } from './geometry';
+
+const u = uctArr;
 
 const W2 = W / 2;
 const H2 = H / 2;
 const L = H / 15;
-const l = H / 45;
 
 const O1:PointArr = [0, H2];
 
-const M1:PointArr = [3*L, H2];
+const M1:PointArr = [0.33*W, H2];
 
-const D1:PointArr = [W, 0.33 * H];
-const D2:PointArr = [W, 0.66 * H];
+const D1:PointArr = [W, 0.25 * H];
+const D2:PointArr = [W, 0.75 * H];
+
+const d = 3;
+const v = (a:PointArr):[PointArr, PointArr] => [
+  [a[0], a[1]-d],
+  [a[0], a[1]+d],
+];
 
 export const level: ProtoLevel = {
   segments: [
-    [ // origin
-      [O1[0], O1[1]],
-      [O1[0] + L, O1[1]],
-    ],
-    [ // middle
-      [O1[0] + L -l, O1[1] -l],
-      [M1[0] + l, M1[1]],
-    ],
-    /* [
-      [O1[0] + l, O1[1]],
-      [D1[0] - l, D1[1]],
-    ],
-    [
-      [O1[0] + l, O1[1]],
-      [D2[0] - l, D2[1]],
-    ], */
-    [ // destinations
-      [D1[0] - L, D1[1]+l],
-      [D1[0], D1[1]-l],
-    ],
-    [
-      [D2[0] - L, D2[1]+l],
-      [D2[0], D2[1]-l],
-    ],
+    v(O1),
+    u(O1, M1),
+    u(M1, D1),
+    u(M1, D2),
+    v(D1),
+    v(D2)
   ],
   origins: [
     {

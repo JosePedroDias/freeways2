@@ -163,19 +163,31 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
       const to = b.vertex;
       let edgePoints = points.slice(a.bestIndex, b.bestIndex);
 
-      if (edgePoints.length < 2) {
-        edgePoints = [lerp2(from, to, 0.1), lerp2(from, to, 0.9)];
-      } else if (edgePoints.length === 2) {
+      //console.log('a', edgePoints.length);
+
+      if (edgePoints.length < 2) { // < 2 -> 2
+        edgePoints = [
+          lerp2(from, to, 0.1),
+          lerp2(from, to, 0.9)
+        ];
+      }
+      
+      if (edgePoints.length === 2) { // 2 -> 4
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.66));
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.33));
-      } else if (edgePoints.length === 3) {
+      } else if (edgePoints.length === 3) { // 3 -> 5
         edgePoints.splice(2, 0, lerp2(edgePoints[1], edgePoints[2], 0.5));
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.5));
       }
 
+      // at this point we have at least 4 points...
+
+      // drop first
       if (!isPointInsideLineSegment(edgePoints[0], from, edgePoints[1])) {
         edgePoints.shift();
       }
+
+      // drop last
       if (
         !isPointInsideLineSegment(
           edgePoints[edgePoints.length - 1],

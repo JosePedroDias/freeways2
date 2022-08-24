@@ -1,4 +1,5 @@
 import { Point } from 'pixi.js';
+import { PointArr } from './level';
 
 export function distXY(dx: number, dy: number): number {
   return Math.sqrt(dx * dx + dy * dy);
@@ -24,6 +25,25 @@ export function getVersor(p1: Point, p2: Point): Point {
     return new Point(1, 0);
   }
   return new Point(dx / d, dy / d);
+}
+
+const D = 3;
+// un center
+export function uct(a:Point, b:Point): [Point, Point] {
+  const v = getVersor(a, b);
+  const a_ = new Point(a.x - D*v.x, a.y - D*v.y);
+  const b_ = new Point(b.x + D*v.x, b.y + D*v.y);
+  return [a_, b_];
+}
+
+export function uctArr(a:PointArr, b:PointArr): [PointArr, PointArr] {
+  const aa = new Point(a[0], a[1]);
+  const bb = new Point(b[0], b[1]);
+  const [cc, dd] = uct(aa, bb);
+  return [
+    [cc.x, cc.y],
+    [dd.x, dd.y],
+  ];
 }
 
 export function getAngleFromVersor(p: Point): number {

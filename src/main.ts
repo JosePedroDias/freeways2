@@ -14,7 +14,7 @@ import { setupCars } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
-import { level as level_ } from './level1';
+import { level as level_ } from './level2';
 import { init, drawObstacle } from './landmarks';
 import { setupFPS } from './fps';
 import { carSpawn } from './carSpawn';
