@@ -4,7 +4,6 @@ import {
   Graphics,
   Point,
   Container,
-  Text,
   Texture,
   TilingSprite,
 } from 'pixi.js';
@@ -18,6 +17,7 @@ import { importLevel, exportLevel } from './level';
 import { level as level_ } from './level1';
 import { init, drawObstacle } from './landmarks';
 import { setupFPS } from './fps';
+import { carSpawn } from './carSpawn';
 
 utils.skipHello();
 
@@ -66,10 +66,7 @@ init().then(() => {
   }
 });
 
-let segment: Segment = {
-  points: [],
-  versors: [],
-};
+let segment: Segment = [];
 level.segments.push(segment);
 
 let segmentGfx = new Graphics();
@@ -100,10 +97,7 @@ function onPointerUp(ev: Event) {
   segmentGfx = new Graphics();
   roadsCtn.addChild(segmentGfx);
 
-  segment = {
-    points: [],
-    versors: [],
-  };
+  segment = [];
   level.segments.push(segment);
 
   if (!skip) {
@@ -142,14 +136,5 @@ setupKeyHandling((key, isDown): boolean => {
   return false;
 });
 
-// ~ STATE
 const addCar = setupCars(app, carsCtn, carsAuxCtn);
-
-let numCars = 0;
-const timer = setInterval(() => {
-  ++numCars;
-  addCar();
-  if (numCars > 0) {
-    clearInterval(timer);
-  }
-}, 800);
+carSpawn(app, level, addCar);

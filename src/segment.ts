@@ -5,10 +5,16 @@ import { rotate90Degrees, distXY, dist, getVersor } from './geometry';
 import { H, MIN_DIST, ROAD_COLORS, ROAD_RADIUS, W } from './constants';
 import { pairUp } from './combinatorial';
 
-export type Segment = {
-  points: Point[];
-  versors: Point[];
-};
+export type Segment = Point[];
+
+function computeVersors(seg: Segment): Point[] {
+  const pairs = pairUp(seg);
+  const versors: Point[] = [];
+  for (const [a, b] of pairs) {
+    versors.push(getVersor(a, b));
+  }
+  return versors;
+}
 
 export function updateSegmentGfx(segment: Segment, gfx: Graphics) {
   gfx.clear();
@@ -16,8 +22,9 @@ export function updateSegmentGfx(segment: Segment, gfx: Graphics) {
   gfx.lineStyle(0);
 
   const path: Point[] = [];
+  const versors = computeVersors(segment);
 
-  const l = segment.points.length;
+  const l = segment.length;
   if (l < 2) return;
 
   const cases = [
@@ -31,17 +38,17 @@ export function updateSegmentGfx(segment: Segment, gfx: Graphics) {
     while (step++ < l) {
       const isLastOne = i === l - 1;
       const doAverage = i > 0 && !isLastOne;
-      const p = segment.points[i];
+      const p = segment[i];
       let v_;
       if (doAverage) {
-        const v0 = segment.versors[i - 1];
-        const v1 = segment.versors[i];
+        const v0 = versors[i - 1];
+        const v1 = versors[i];
         v_ = new Point(v0.x + v1.x, v0.y + v1.y);
         const d = distXY(v_.x, v_.y);
         v_.x /= d;
         v_.y /= d;
       } else {
-        v_ = segment.versors[isLastOne ? i - 1 : i];
+        v_ = versors[isLastOne ? i - 1 : i];
       }
       const v = rotate90Degrees(v_);
       v.x = p.x + ROAD_RADIUS * sign * v.x;
@@ -55,12 +62,6 @@ export function updateSegmentGfx(segment: Segment, gfx: Graphics) {
   gfx.beginFill(ROAD_COLORS[0], 1);
   gfx.drawPolygon(path);
   gfx.endFill();
-
-  /* gfx.beginFill(0xFFFFFF, 0.25);
-  for (let {x, y} of segment.points) {
-    gfx.drawCircle(x, y, 1.5);
-  }
-  gfx.endFill(); */
 }
 
 export function onMove(
@@ -68,21 +69,19 @@ export function onMove(
   gfx: Graphics,
   p: Point,
 ): [Point, Point] | undefined {
-  const lastP = segment.points.at(-1);
+  const lastP = segment.at(-1);
   if (!lastP) {
-    segment.points.push(p.clone());
+    segment.push(p.clone());
     updateSegmentGfx(segment, gfx);
   } else {
     const d = dist(lastP, p);
     if (d > MIN_DIST) {
-      segment.points.push(p.clone());
-      const v = getVersor(p, lastP);
-      segment.versors.push(v);
+      segment.push(p.clone());
 
       updateSegmentGfx(segment, gfx);
 
-      const v0 = segment.points.at(-2);
-      const v1 = segment.points.at(-1);
+      const v0 = segment.at(-2);
+      const v1 = segment.at(-1);
       if (v0 && v1) {
         return [v0, v1];
       }
@@ -102,7 +101,7 @@ export const qtSegments = new Quadtree({
 export function updateSegmentsQT(segments: Segment[]) {
   qtSegments.clear();
   for (const seg of segments) {
-    for (const [p1, p2] of pairUp(seg.points)) {
+    for (const [p1, p2] of pairUp(seg)) {
       qtSegments.insert(
         new Line({
           x1: p1.x,

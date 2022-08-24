@@ -72,3 +72,8 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [ ] basic shadows between layers?
 - [ ] level editor
 - [ ] procedural level generation?
+
+
+## KNOWN BUGS
+
+- aux segment gfx aren't being properly destroyed?

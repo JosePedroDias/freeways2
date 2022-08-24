@@ -16,12 +16,7 @@ import {
   dist,
 } from './geometry';
 import { updateQuadTreeGraphics, onlyColliding } from './quadExtras';
-import { getRandomColor2 } from './colors';
 import { whereToGo } from './topology';
-
-function getRandomPosition() {
-  return new Point(Math.random() * W, Math.random() * H);
-}
 
 const TEXTURE_PATH = 'assets/cars/DeLorean_DMC.png';
 
@@ -43,12 +38,13 @@ export class Car {
   auxGfx: Graphics;
   shape: Circle | undefined;
   color: number;
+  destinationName: string;
   destination: Point | undefined;
   destinations: Point[] = [];
 
   constructor(
+    _destinationName: string,
     _position: Point,
-    _orientation: Point,
     _color: number,
     ctn: Container,
     auxCtn: Container,
@@ -60,6 +56,8 @@ export class Car {
     car.anchor.set(0.5);
     this.sprite = car;
 
+    this.destinationName = _destinationName;
+
     this.color = _color;
 
     ctn.addChild(car);
@@ -69,6 +67,43 @@ export class Car {
     auxCtn.addChild(this.auxGfx);
 
     this.updateShape();
+  }
+
+  isCloseToOtherCar(destVersor: Point): boolean {
+    const testShape = new Circle({
+      x: this.sprite.position.x + destVersor.x * LOOK_AHEAD,
+      y: this.sprite.position.y + destVersor.y * LOOK_AHEAD,
+      r: LOOK_AHEAD_CIRCLE_RADIUS,
+    });
+
+    const neighbors = onlyColliding(testShape, qtCars.retrieve(testShape));
+    for (const nei of neighbors) {
+      if (nei === this.shape) continue;
+      return true;
+    }
+
+    return false;
+  }
+
+  move(deltaSecs: number) {
+    if (!this.destination) return;
+
+    const destVersor = getVersor(this.sprite.position, this.destination);
+
+    const keepMoving = !this.isCloseToOtherCar(destVersor);
+
+    if (dist(this.sprite.position, this.destination) < 2) {
+      this.updateDestination();
+    }
+
+    if (keepMoving) {
+      this.sprite.position.set(
+        this.sprite.position.x + destVersor.x * CAR_SPEED * deltaSecs,
+        this.sprite.position.y + destVersor.y * CAR_SPEED * deltaSecs,
+      );
+
+      this.sprite.angle = getAngleFromVersor(destVersor) * RAD_TO_DEG + 90;
+    }
   }
 
   updateShape() {
@@ -122,7 +157,7 @@ export function setupCars(
   app: Application,
   carsCtn: Container,
   carsAuxCtn: Container,
-): () => void {
+): (destinationName: string, color: number, pos: Point) => void {
   const qtGfx = new Graphics();
   app.stage.addChild(qtGfx);
 
@@ -135,48 +170,12 @@ export function setupCars(
 
     // car movement
     for (const c of cars) {
-      if (!c.destination) continue;
-
-      const destVersor = getVersor(c.sprite.position, c.destination);
-
-      const testShape = new Circle({
-        x: c.sprite.position.x + destVersor.x * LOOK_AHEAD,
-        y: c.sprite.position.y + destVersor.y * LOOK_AHEAD,
-        r: LOOK_AHEAD_CIRCLE_RADIUS,
-      });
-      extraShapes.push(testShape);
-
-      // test if someone is in front of me and stop if so
-      let keepMoving = true;
-      const neighbors = onlyColliding(testShape, qtCars.retrieve(testShape));
-      for (const nei of neighbors) {
-        if (nei === c.shape) continue;
-        keepMoving = false;
-      }
-
-      if (dist(c.sprite.position, c.destination) < 2) {
-        c.updateDestination();
-      }
-
-      if (keepMoving) {
-        c.sprite.position.set(
-          c.sprite.position.x + destVersor.x * CAR_SPEED * deltaSecs,
-          c.sprite.position.y + destVersor.y * CAR_SPEED * deltaSecs,
-        );
-
-        c.sprite.angle = getAngleFromVersor(destVersor) * RAD_TO_DEG + 90;
-      }
+      c.move(deltaSecs);
     }
   });
 
-  return () => {
-    const c = new Car(
-      getRandomPosition(),
-      new Point(1, 0),
-      getRandomColor2(64, 255, 64, 255, 64, 255),
-      carsCtn,
-      carsAuxCtn,
-    );
+  return (destinationName: string, color: number, pos: Point) => {
+    const c = new Car(destinationName, pos, color, carsCtn, carsAuxCtn);
     c.updateDestination();
   };
 }

@@ -88,7 +88,7 @@ export function isPointInsideLineSegment(
 }
 
 export function doesSegmentSelfIntersect(segment: Segment): boolean {
-  const pairs = pairUp(segment.points);
+  const pairs = pairUp(segment);
   const combs = combinationsOnce(pairs.length, false);
   for (const [pi1, pi2] of combs) {
     const [l1a, l1b] = pairs[pi1];
@@ -124,8 +124,8 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   for (const [si1, si2] of segmentIndices) {
     const seg1 = segments[si1];
     const seg2 = segments[si2];
-    const pairs1 = pairUp(seg1.points);
-    const pairs2 = pairUp(seg2.points);
+    const pairs1 = pairUp(seg1);
+    const pairs2 = pairUp(seg2);
     let int: Point | false = false;
     for (const [[l1a, l1b], [l2a, l2b]] of combine2(pairs1, pairs2)) {
       if ((int = lineLineCollidesAt(l1a, l1b, l2a, l2b))) {
@@ -136,7 +136,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   }
 
   for (let i = 0; i < segments.length; ++i) {
-    const points = segments[i].points;
+    const points = segments[i];
     const lookFor = ints
       .filter((int) => int.touching.includes(i))
       .map((int) => ({

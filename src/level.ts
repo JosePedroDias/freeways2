@@ -6,10 +6,7 @@ import {
 } from './aux';
 import { Segment } from './segment';
 
-type ProtoSegment = {
-  points: [number, number][];
-  versors: [number, number][];
-};
+type ProtoSegment = [number, number][];
 
 export type ProtoLevel = {
   segments: ProtoSegment[];
@@ -21,21 +18,19 @@ export type ProtoLevel = {
 type ProtoDestination = {
   name: string;
   point: [number, number];
-  versor: [number, number];
 };
 
 type ProtoOrigin = ProtoDestination & {
-  spawnRate: number;
+  needs: { [to: string]: number }; // spawnRate in cars per second
 };
 
 export type Destination = {
   name: string;
   point: Point;
-  versor: Point;
 };
 
 export type Origin = Destination & {
-  spawnRate: number;
+  needs: { [to: string]: number }; // spawnRate in cars per second
 };
 
 export type BlockingObstacle = {
@@ -56,7 +51,7 @@ type ProtoObstacle = Omit<Obstacle, 'rect'> & {
   rect: [number, number, number, number];
 };
 
-type Level = {
+export type Level = {
   segments: Segment[];
   origins: Origin[];
   destinations: Destination[];

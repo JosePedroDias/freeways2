@@ -25,3 +25,14 @@ export function simplifyRectangleToArray4(
     simplifyNumber(r.height),
   ];
 }
+
+export function enumerate<A>(arr: A[]): [number, A][] {
+  let i = 0;
+  const pairs: [number, A][] = [];
+
+  for (const v of arr) {
+    pairs.push([i++, v]);
+  }
+
+  return pairs;
+}
