@@ -11,13 +11,16 @@ import {
   averagePoint,
   nearestPoint,
 } from './geometry';
-import { getRandomColor2 } from './colors';
+import { getRandomColor } from './colors';
 import { Car } from './car';
+import { enumerate } from './aux';
 
 const DRAW_EDGES_LINES = true;
 const DRAW_EDGES_LABELS = false;
 const DRAW_VERTICES = false;
 const DRAW_VERTEX_LABELS = true;
+
+const INVALID_INDEX = -1;
 
 const BASIC_LINE_STYLE = {
   width: 4,
@@ -141,10 +144,10 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
       .filter((int) => int.touching.includes(i))
       .map((int) => ({
         vertex: int.vertex,
-        bestIndex: -1,
+        bestIndex: INVALID_INDEX,
         smallestDistance: -1,
       }));
-    for (const [idx, p] of Object.entries(points)) {
+    for (const [idx, p] of enumerate(points)) {
       for (const lf of lookFor) {
         const d = dist(p, lf.vertex);
         if (lf.smallestDistance === -1 || lf.smallestDistance > d) {
@@ -208,17 +211,17 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   }
 
   // draw edges
-  for (const [_eIdx, edge] of Object.entries(edges)) {
+  for (const edge of edges) {
     const points = edge.points;
 
     if (DRAW_EDGES_LINES) {
       gfx.lineStyle({
         ...BASIC_LINE_STYLE,
-        color: getRandomColor2(64, 255, 64, 255, 64, 255),
+        color: getRandomColor(64, 255, 64, 255, 64, 255),
       } as any);
 
-      for (const [i, p] of Object.entries(points)) {
-        if (i === '0') gfx.moveTo(p.x, p.y);
+      for (const [i, p] of enumerate(points)) {
+        if (i === 0) gfx.moveTo(p.x, p.y);
         else gfx.lineTo(p.x, p.y);
       }
     }
@@ -236,7 +239,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   gfx.lineStyle(0);
 
   // draw vertices
-  for (const [vIdx, vtx] of Object.entries(vertices)) {
+  for (const [vIdx, vtx] of enumerate(vertices)) {
     if (DRAW_VERTICES) {
       gfx.beginFill(0xffffff, 0.66);
       gfx.drawCircle(vtx.x, vtx.y, 5);
@@ -262,8 +265,8 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
 function updateGraph() {
   graph = new DijkstraCalculator();
 
-  for (const [vIdx, _vtx] of Object.entries(vertices)) {
-    graph.addVertex(vIdx);
+  for (const [vIdx, _vtx] of enumerate(vertices)) {
+    graph.addVertex('' + vIdx);
   }
 
   for (const edge of edges) {
@@ -272,6 +275,8 @@ function updateGraph() {
 
     graph.addEdge('' + fromIdx, '' + toIdx, edge.weight);
   }
+
+  console.log('graph', graph);
 }
 
 export function whereToGo(c: Car): Point[] {
@@ -284,10 +289,12 @@ export function whereToGo(c: Car): Point[] {
 
   c.sprite.position = nearestVertex.clone();
 
+  let attemptsLeft = 3;
   let destinationVertexIdx;
   do {
     destinationVertexIdx = Math.floor(Math.random() * vertices.length);
-  } while (destinationVertexIdx === nearestVertexIdx);
+    --attemptsLeft;
+  } while (destinationVertexIdx === nearestVertexIdx && attemptsLeft >= 0);
 
   //const destinationVertex = vertices[destinationVertexIdx];
   //console.log('destinationVertexIdx', destinationVertexIdx);

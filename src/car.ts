@@ -126,16 +126,20 @@ export class Car {
       );
   }
 
-  updateDestination() {
+  updateDestination(attemptsLeft:number = 3) {
     const dest = this.destinations.shift();
     if (dest) {
       this.setDestination(dest);
-    } else {
+    } else if (attemptsLeft >= 0) {
       this.destinations = whereToGo(this);
-      this.updateDestination();
+      this.updateDestination(attemptsLeft - 1);
     }
     //this.setDestination(getRandomPosition());
   }
+}
+
+export function getCars():Car[] {
+  return cars;
 }
 
 const qtCars = new Quadtree({

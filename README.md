@@ -51,8 +51,8 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] extrapolate graph from intersection of roads
 - [x] apply Dijkstra shortest path and tag segments accordingly
 - [x] add sources and destinations to the map
-- [ ] make cars spawn from sources
-- [ ] make cars die on destinations
+- [~] make cars spawn from sources (and not on top of other cars)
+- [x] make cars die on destinations
 - [ ] aux vis: display connected roads
 - [ ] accelerate time
 - [ ] detect traffic jam

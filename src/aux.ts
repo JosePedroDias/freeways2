@@ -36,3 +36,7 @@ export function enumerate<A>(arr: A[]): [number, A][] {
 
   return pairs;
 }
+
+export function enumerateReverse<A>(arr: A[]): [number, A][] {
+  return enumerate(arr).reverse();
+}
