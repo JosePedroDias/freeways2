@@ -50,7 +50,7 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] detect proximity of other cars ahead and stop
 - [x] extrapolate graph from intersection of roads
 - [x] apply Dijkstra shortest path and tag segments accordingly
-- [ ] add sources and destinations to the map
+- [x] add sources and destinations to the map
 - [ ] make cars spawn from sources
 - [ ] make cars die on destinations
 - [ ] aux vis: display connected roads

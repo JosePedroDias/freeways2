@@ -17,6 +17,7 @@ import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
 import { level as level_ } from './level1';
 import { init, drawObstacle } from './landmarks';
+import { setupFPS } from './fps';
 
 utils.skipHello();
 
@@ -48,18 +49,7 @@ app.stage.addChild(carsAuxCtn);
 app.stage.addChild(carsCtn);
 
 if (SHOW_FPS) {
-  const fpsTxt = new Text('FPS', {
-    fill: 0xffffff,
-    fontSize: 14,
-    fontFamily: 'monospace',
-  });
-  fpsTxt.x = 40;
-  fpsTxt.y = 40;
-  app.stage.addChild(fpsTxt);
-
-  app.ticker.add(() => {
-    fpsTxt.text = app.ticker.FPS.toFixed(1);
-  });
+  setupFPS(app);
 }
 
 // STATE
