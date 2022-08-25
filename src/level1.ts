@@ -7,22 +7,25 @@ const H2 = H / 2;
 const L = H / 15;
 const l = H / 45;
 
-const O1:PointArr = [0+l, H2];
-const D1:PointArr = [W-l, H2];
+const O1: PointArr = [0 + l, H2];
+const D1: PointArr = [W - l, H2];
 
 export const level: ProtoLevel = {
   segments: [
-    [ // origin
-      [O1[0], O1[1]+l],
-      [O1[0] + L, O1[1]-l],
+    [
+      // origin
+      [O1[0], O1[1] + l],
+      [O1[0] + L, O1[1] - l],
     ],
-    [ // middle
+    [
+      // middle
       [O1[0] + l, O1[1]],
       [D1[0] - l, D1[1]],
     ],
-    [ // destination
-      [D1[0] - L, D1[1]+l],
-      [D1[0], D1[1]-l],
+    [
+      // destination
+      [D1[0] - L, D1[1] + l],
+      [D1[0], D1[1] - l],
     ],
   ],
   origins: [
@@ -39,7 +42,7 @@ export const level: ProtoLevel = {
       name: 'dest1',
       color: rgbToNumber(255, 0, 0),
       point: D1,
-    }
+    },
   ],
   obstacles: [
     {

@@ -72,7 +72,7 @@ level.segments.push(segment);
 let segmentGfx = new Graphics();
 roadsCtn.addChild(segmentGfx);
 updateSegmentGfx(segment, segmentGfx);
-segmentsToGraph(level.segments, roadsAuxCtn);
+segmentsToGraph(level, roadsAuxCtn);
 
 let isDown = false;
 bg.on('pointermove', (ev) => {
@@ -101,7 +101,7 @@ function onPointerUp(ev: Event) {
   level.segments.push(segment);
 
   if (!skip) {
-    segmentsToGraph(level.segments, roadsAuxCtn);
+    segmentsToGraph(level, roadsAuxCtn);
   }
 }
 
@@ -123,7 +123,7 @@ setupKeyHandling((key, isDown): boolean => {
         level.segments.splice(level.segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
         roadsAuxCtn.removeChildren();
-        segmentsToGraph(level.segments, roadsAuxCtn);
+        segmentsToGraph(level, roadsAuxCtn);
       }
       return true;
     } else if (key === 's') {

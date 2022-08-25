@@ -126,7 +126,7 @@ export class Car {
       );
   }
 
-  updateDestination(attemptsLeft:number = 3) {
+  updateDestination(attemptsLeft = 3) {
     const dest = this.destinations.shift();
     if (dest) {
       this.setDestination(dest);
@@ -138,7 +138,7 @@ export class Car {
   }
 }
 
-export function getCars():Car[] {
+export function getCars(): Car[] {
   return cars;
 }
 

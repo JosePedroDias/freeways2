@@ -7,7 +7,7 @@ import { Destination, Level, Origin } from './level';
 
 type NeedState = {
   from: Origin;
-  to: Destination,
+  to: Destination;
   destinationName: string;
   spawnMS: number;
   forNextSpawnMS: number;
@@ -26,7 +26,9 @@ export function carSpawn(
       const spawnMS = 1000 / carsPerSec;
       needStates.push({
         from: ori,
-        to: level.destinations.find((dest) => dest.name === destinationName) as Destination,
+        to: level.destinations.find(
+          (dest) => dest.name === destinationName,
+        ) as Destination,
         destinationName,
         spawnMS,
         forNextSpawnMS: Math.random() * spawnMS,
@@ -51,7 +53,8 @@ export function carSpawn(
     const MIN_DIST_SQ = 30 * 30;
     const cars = getCars();
     for (const dst of level.destinations) {
-      for (const [idx, car] of enumerateReverse(cars)) { // so we can splice
+      for (const [idx, car] of enumerateReverse(cars)) {
+        // so we can splice
         const dSq = distSquared(car.sprite.position, dst.point);
         //console.log(dst.name, idx, dSq.toFixed(0));
         if (dSq < MIN_DIST_SQ) {
@@ -59,7 +62,7 @@ export function carSpawn(
           car.sprite.parent.removeChild(car.sprite);
           cars.splice(idx, 1);
         }
-      } 
+      }
     }
   });
 }

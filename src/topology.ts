@@ -10,11 +10,11 @@ import {
   lerp2,
   averagePoint,
   nearestPoint,
-  distSquared,
 } from './geometry';
 import { getRandomColor } from './colors';
 import { Car } from './car';
 import { enumerate } from './aux';
+import { Level } from './level';
 
 const DRAW_EDGES_LINES = true;
 const DRAW_EDGES_LABELS = false;
@@ -114,8 +114,11 @@ type Edge = {
 const vertices: Point[] = [];
 const edges: Edge[] = [];
 let graph: DijkstraCalculator;
+const locationToVertex = new Map<string, number>();
 
-export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
+export function segmentsToGraph(level: Level, auxCtn: Container) {
+  const segments = level.segments;
+
   const ints = [];
 
   auxCtn.removeChildren();
@@ -134,15 +137,16 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     let int: Point | false = false;
     for (const [[l1a, l1b], [l2a, l2b]] of combine2(pairs1, pairs2)) {
       if ((int = lineLineCollidesAt(l1a, l1b, l2a, l2b))) {
-        
         // find close enough vertices and reuse them instead
         const int_ = int as Point;
-        const otherInt = vertices.find((v) => Math.abs(v.x - int_.x) < 0.001 && Math.abs(v.y - int_.y) < 0.001);
+        const otherInt = vertices.find(
+          (v) =>
+            Math.abs(v.x - int_.x) < 0.001 && Math.abs(v.y - int_.y) < 0.001,
+        );
 
         if (otherInt) {
           ints.push({ vertex: otherInt, touching: [si1, si2] });
-        }
-        else {
+        } else {
           ints.push({ vertex: int, touching: [si1, si2] });
           vertices.push(int);
         }
@@ -186,17 +190,17 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
       const to = b.vertex;
       let edgePoints = points.slice(a.bestIndex, b.bestIndex);
 
-      if (edgePoints.length < 2) { // < 2 -> 2
-        edgePoints = [
-          lerp2(from, to, 0.1),
-          lerp2(from, to, 0.9)
-        ];
+      if (edgePoints.length < 2) {
+        // < 2 -> 2
+        edgePoints = [lerp2(from, to, 0.1), lerp2(from, to, 0.9)];
       }
-      
-      if (edgePoints.length === 2) { // 2 -> 4
+
+      if (edgePoints.length === 2) {
+        // 2 -> 4
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.66));
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.33));
-      } else if (edgePoints.length === 3) { // 3 -> 5
+      } else if (edgePoints.length === 3) {
+        // 3 -> 5
         edgePoints.splice(2, 0, lerp2(edgePoints[1], edgePoints[2], 0.5));
         edgePoints.splice(1, 0, lerp2(edgePoints[0], edgePoints[1], 0.5));
       }
@@ -290,12 +294,13 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     }
   }
 
-  updateGraph();
+  updateGraph(level);
 
   updateSegmentsQT(segments);
 }
 
-function updateGraph() {
+function updateGraph(level: Level) {
+  // update graph
   graph = new DijkstraCalculator();
 
   for (const [vIdx, _vtx] of enumerate(vertices)) {
@@ -309,7 +314,24 @@ function updateGraph() {
     graph.addEdge('' + fromIdx, '' + toIdx, edge.weight);
   }
 
-  console.log('graph', graph);
+  //console.log('graph', graph);
+
+  // update locationToVertex
+  locationToVertex.clear();
+
+  for (const ori of level.origins) {
+    const pt = nearestPoint(ori.point, vertices);
+    const ptIdx = vertices.indexOf(pt);
+    locationToVertex.set(ori.name, ptIdx);
+  }
+
+  for (const dst of level.destinations) {
+    const pt = nearestPoint(dst.point, vertices);
+    const ptIdx = vertices.indexOf(pt);
+    locationToVertex.set(dst.name, ptIdx);
+  }
+
+  //console.log('locationToVertex', locationToVertex);
 }
 
 export function whereToGo(c: Car): Point[] {
@@ -317,35 +339,21 @@ export function whereToGo(c: Car): Point[] {
 
   const nearestVertex = nearestPoint(carPos, vertices);
   const nearestVertexIdx = vertices.indexOf(nearestVertex);
-  //console.log('nearestVertex', nearestVertex);
-  //console.log('nearestVertexIdx', nearestVertexIdx);
 
   c.sprite.position = nearestVertex.clone();
 
-  let attemptsLeft = 3;
-  let destinationVertexIdx;
-  do {
-    destinationVertexIdx = Math.floor(Math.random() * vertices.length);
-    --attemptsLeft;
-  } while (destinationVertexIdx === nearestVertexIdx && attemptsLeft >= 0);
-
-  //const destinationVertex = vertices[destinationVertexIdx];
-  //console.log('destinationVertexIdx', destinationVertexIdx);
-  //console.log('destinationVertex', destinationVertex);
+  const destinationVertexIdx = locationToVertex.get(c.destinationName);
 
   const path: string[] = graph.calculateShortestPath(
     '' + nearestVertexIdx,
     '' + destinationVertexIdx,
   );
-  //console.log('path', path);
 
   const nextVertexIdx = +path[1];
   const nextVertex = vertices[nextVertexIdx];
-  //console.log('nextVertexIndex', nextVertexIndex);
-  //console.log('nextVertex', nextVertex);
 
   console.log(
-    `${nearestVertexIdx} -> ${nextVertexIdx} ... ${destinationVertexIdx}`,
+    `${nearestVertexIdx} -> ${nextVertexIdx} ... ${destinationVertexIdx} (${c.destinationName})`,
   );
 
   if (!nextVertex) {
@@ -369,5 +377,3 @@ export function whereToGo(c: Car): Point[] {
 
   return [];
 }
-
-//function getGraph():DijkstraCalculator

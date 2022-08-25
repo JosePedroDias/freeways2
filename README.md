@@ -51,8 +51,11 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] extrapolate graph from intersection of roads
 - [x] apply Dijkstra shortest path and tag segments accordingly
 - [x] add sources and destinations to the map
-- [~] make cars spawn from sources (and not on top of other cars)
+- [x] make cars spawn from sources (and not on top of other cars)
 - [x] make cars die on destinations
+- [ ] new cars shouldn't spawn on top of other cars
+- [ ] draw origins and destinations with location name signs
+- [ ] avoid strokes over obstacle
 - [ ] aux vis: display connected roads
 - [ ] accelerate time
 - [ ] detect traffic jam
@@ -62,9 +65,9 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] basic undo support
 - [x] delete closest road
 - [x] delete orphan segments
-- [ ] fix nearly perfect segments (position very close to existing one with versors not very far off)
+- [x] merge close-enough vertices
+- [ ] reuse existing vertices at stroke start
 - [ ] draw obstacles with procedural drawing
-- [ ] draw origins and destinations with location name signs
 - [ ] basic event sounds
 - [ ] engine + environmental sounds
 - [ ] good looking cars
