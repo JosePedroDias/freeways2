@@ -7,8 +7,8 @@ const H2 = H / 2;
 const L = H / 15;
 const l = H / 45;
 
-const O1:PointArr = [0, H2];
-const D1:PointArr = [W, H2];
+const O1:PointArr = [0+l, H2];
+const D1:PointArr = [W-l, H2];
 
 export const level: ProtoLevel = {
   segments: [

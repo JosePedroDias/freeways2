@@ -10,6 +10,7 @@ import {
   lerp2,
   averagePoint,
   nearestPoint,
+  distSquared,
 } from './geometry';
 import { getRandomColor } from './colors';
 import { Car } from './car';
@@ -122,6 +123,7 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
   const gfx = new Graphics();
   auxCtn.addChild(gfx);
 
+  // detect vertices
   gfx.clear();
   const segmentIndices = combinationsOnce(segments.length, true);
   for (const [si1, si2] of segmentIndices) {
@@ -132,12 +134,33 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     let int: Point | false = false;
     for (const [[l1a, l1b], [l2a, l2b]] of combine2(pairs1, pairs2)) {
       if ((int = lineLineCollidesAt(l1a, l1b, l2a, l2b))) {
-        ints.push({ vertex: int, touching: [si1, si2] });
-        vertices.push(int);
+        
+        // find close enough vertices and reuse them instead
+        const int_ = int as Point;
+        const otherInt = vertices.find((v) => Math.abs(v.x - int_.x) < 0.001 && Math.abs(v.y - int_.y) < 0.001);
+
+        if (otherInt) {
+          ints.push({ vertex: otherInt, touching: [si1, si2] });
+        }
+        else {
+          ints.push({ vertex: int, touching: [si1, si2] });
+          vertices.push(int);
+        }
       }
     }
   }
 
+  // measure vertice-vertice distance
+  /* {
+    console.log('# vertices:', vertices.length);
+    const vIdxPairs = combinationsOnce(vertices.length, true);
+    for (const [vi1, vi2] of vIdxPairs) {
+      const dSq = distSquared(vertices[vi1], vertices[vi2]);
+      console.log(dSq.toFixed(0));
+    }
+  } */
+
+  // detect edges
   for (let i = 0; i < segments.length; ++i) {
     const points = segments[i];
     const lookFor = ints
@@ -163,8 +186,6 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
       const to = b.vertex;
       let edgePoints = points.slice(a.bestIndex, b.bestIndex);
 
-      //console.log('a', edgePoints.length);
-
       if (edgePoints.length < 2) { // < 2 -> 2
         edgePoints = [
           lerp2(from, to, 0.1),
@@ -182,12 +203,12 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
 
       // at this point we have at least 4 points...
 
-      // drop first
+      // drop first?
       if (!isPointInsideLineSegment(edgePoints[0], from, edgePoints[1])) {
         edgePoints.shift();
       }
 
-      // drop last
+      // drop last?
       if (
         !isPointInsideLineSegment(
           edgePoints[edgePoints.length - 1],
@@ -261,10 +282,10 @@ export function segmentsToGraph(segments: Segment[], auxCtn: Container) {
     if (DRAW_VERTEX_LABELS) {
       const txt = new Text(vIdx, {
         ...BASIC_TEXT_OPTS,
-        fontSize: 18,
+        fontSize: 13,
       });
       txt.anchor.set(0.5);
-      txt.position.set(vtx.x + 6, vtx.y + 6);
+      txt.position.set(vtx.x + 0, vtx.y + 0);
       auxCtn.addChild(txt);
     }
   }

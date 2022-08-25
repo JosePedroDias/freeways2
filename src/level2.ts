@@ -8,13 +8,14 @@ const u = uctArr;
 const W2 = W / 2;
 const H2 = H / 2;
 const L = H / 15;
+const l = H / 45/2;
 
-const O1:PointArr = [0, H2];
+const O1:PointArr = [0+l, H2];
 
 const M1:PointArr = [0.33*W, H2];
 
-const D1:PointArr = [W, 0.25 * H];
-const D2:PointArr = [W, 0.75 * H];
+const D1:PointArr = [W-l, 0.25 * H];
+const D2:PointArr = [W-l, 0.75 * H];
 
 const d = 3;
 const v = (a:PointArr):[PointArr, PointArr] => [
