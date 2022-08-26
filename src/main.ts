@@ -14,7 +14,7 @@ import { setupCars } from './car';
 import { setupKeyHandling } from './keyboard';
 import { doesSegmentSelfIntersect, segmentsToGraph } from './topology';
 import { importLevel, exportLevel } from './level';
-import { level as level_ } from './level2';
+import { level as level_ } from './levels/2';
 import { init, drawObstacle } from './landmarks';
 import { setupFPS } from './fps';
 import { carSpawn } from './carSpawn';
@@ -122,7 +122,6 @@ setupKeyHandling((key, isDown): boolean => {
       if (level.segments.length > 1) {
         level.segments.splice(level.segments.length - 2, 1);
         roadsCtn.removeChildAt(roadsCtn.children.length - 2);
-        roadsAuxCtn.removeChildren();
         segmentsToGraph(level, roadsAuxCtn);
       }
       return true;

@@ -1,6 +1,6 @@
-import { PointArr, ProtoLevel } from './level';
-import { W, H } from './constants';
-import { rgbToNumber } from './colors';
+import { PointArr, ProtoLevel } from '../level';
+import { W, H } from '../constants';
+import { rgbToNumber } from '../colors';
 
 const W2 = W / 2;
 const H2 = H / 2;

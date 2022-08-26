@@ -111,20 +111,22 @@ type Edge = {
   weight: number;
 };
 
-const vertices: Point[] = [];
-const edges: Edge[] = [];
+let vertices: Point[] = [];
+let edges: Edge[] = [];
 let graph: DijkstraCalculator;
 const locationToVertex = new Map<string, number>();
 
-export function segmentsToGraph(level: Level, auxCtn: Container) {
+export function segmentsToGraph(level: Level, roadsAuxCtn: Container) {
   const segments = level.segments;
 
   const ints = [];
+  vertices = [];
+  edges = []
 
-  auxCtn.removeChildren();
+  roadsAuxCtn.removeChildren();
 
   const gfx = new Graphics();
-  auxCtn.addChild(gfx);
+  roadsAuxCtn.addChild(gfx);
 
   // detect vertices
   gfx.clear();
@@ -153,16 +155,6 @@ export function segmentsToGraph(level: Level, auxCtn: Container) {
       }
     }
   }
-
-  // measure vertice-vertice distance
-  /* {
-    console.log('# vertices:', vertices.length);
-    const vIdxPairs = combinationsOnce(vertices.length, true);
-    for (const [vi1, vi2] of vIdxPairs) {
-      const dSq = distSquared(vertices[vi1], vertices[vi2]);
-      console.log(dSq.toFixed(0));
-    }
-  } */
 
   // detect edges
   for (let i = 0; i < segments.length; ++i) {
@@ -269,7 +261,7 @@ export function segmentsToGraph(level: Level, auxCtn: Container) {
       txt.anchor.set(0.5);
       txt.alpha = 0.66;
       txt.position.set(ctr.x, ctr.y);
-      auxCtn.addChild(txt);
+      roadsAuxCtn.addChild(txt);
     }
   }
 
@@ -290,7 +282,7 @@ export function segmentsToGraph(level: Level, auxCtn: Container) {
       });
       txt.anchor.set(0.5);
       txt.position.set(vtx.x + 0, vtx.y + 0);
-      auxCtn.addChild(txt);
+      roadsAuxCtn.addChild(txt);
     }
   }
 

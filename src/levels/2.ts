@@ -1,7 +1,7 @@
-import { PointArr, ProtoLevel } from './level';
-import { W, H } from './constants';
-import { rgbToNumber } from './colors';
-import { uctArr } from './geometry';
+import { PointArr, ProtoLevel } from '../level';
+import { W, H } from '../constants';
+import { rgbToNumber } from '../colors';
+import { uctArr } from '../geometry';
 
 const u = uctArr;
 

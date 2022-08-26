@@ -1,4 +1,8 @@
-import { ProtoLevel } from './level';
+import { W, H } from '../constants';
+import { ProtoLevel } from '../level';
+import { hsvToRgb, rgbToNumber } from '../colors';
+
+const hsvToNumber = (h:number, s:number, v:number):number => rgbToNumber(...hsvToRgb(h, s, v));
 
 export const level: ProtoLevel = {
   segments: [
@@ -454,7 +458,27 @@ export const level: ProtoLevel = {
       [339.2, 324.7],
     ],
   ],
-  origins: [],
-  destinations: [],
+  origins: [
+    {
+      name: 'a',
+      point: [0, H/2],
+      needs: {
+        A: 0.2,
+        B: 0.2
+      }
+    }
+  ],
+  destinations: [
+    {
+      name: 'A',
+      point: [W, 0.25*H],
+      color: hsvToNumber(0.5, 1, 1)
+    },
+    {
+      name: 'B',
+      point: [W, 0.75*H],
+      color: hsvToNumber(0, 1, 1)
+    }
+  ],
   obstacles: [],
 };

@@ -1,6 +1,7 @@
 import { Application, Point } from 'pixi.js';
 import { enumerateReverse } from './aux';
-import { getCars } from './car';
+import { getCars, isCloseToAnyCar } from './car';
+import { CAR_RADIUS } from './constants';
 import { distSquared } from './geometry';
 
 import { Destination, Level, Origin } from './level';
@@ -41,10 +42,15 @@ export function carSpawn(
 
     for (const ns of needStates) {
       if (ns.forNextSpawnMS <= 0) {
-        // TODO DOES IT FIT?
-        addCarFn(ns.destinationName, ns.to.color, ns.from.point.clone());
-
-        ns.forNextSpawnMS += ns.spawnMS;
+        const pos = ns.from.point.clone();
+        
+        if (!isCloseToAnyCar(pos, CAR_RADIUS * 1.2)) {
+          addCarFn(ns.destinationName, ns.to.color, pos);
+          ns.forNextSpawnMS += ns.spawnMS;
+          console.log('SPAWNED');
+        } else {
+          console.log('SPAWN DENIED');
+        }
       }
 
       ns.forNextSpawnMS -= deltaMS;

@@ -8,7 +8,7 @@ import {
 } from 'pixi.js';
 import { Quadtree, Circle } from '@timohausmann/quadtree-ts';
 
-import { W, H } from './constants';
+import { W, H, CAR_RADIUS } from './constants';
 import {
   getVersor,
   getAngleFromVersor,
@@ -20,7 +20,7 @@ import { whereToGo } from './topology';
 
 const TEXTURE_PATH = 'assets/cars/DeLorean_DMC.png';
 
-const CAR_RADIUS = 18;
+
 const LOOK_AHEAD = 14;
 const LOOK_AHEAD_CIRCLE_RADIUS = CAR_RADIUS * 0.4;
 const CAR_SPEED = 60; // in pixels per sec
@@ -32,6 +32,18 @@ const SHOW_CAR_COLLISIONS = false;
 
 const cars: Car[] = [];
 let extraShapes: any[] = [];
+
+
+export function isCloseToAnyCar(position: Point, radius:number): boolean {
+  const testShape = new Circle({
+    x: position.x,
+    y: position.y,
+    r: radius,
+  });
+
+  const neighbors = onlyColliding(testShape, qtCars.retrieve(testShape));
+  return neighbors.length > 0;
+}
 
 export class Car {
   sprite: Sprite;

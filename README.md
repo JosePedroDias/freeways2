@@ -53,7 +53,7 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] add sources and destinations to the map
 - [x] make cars spawn from sources (and not on top of other cars)
 - [x] make cars die on destinations
-- [ ] new cars shouldn't spawn on top of other cars
+- [x] new cars shouldn't spawn on top of other cars
 - [ ] draw origins and destinations with location name signs
 - [ ] avoid strokes over obstacle
 - [ ] aux vis: display connected roads
@@ -67,7 +67,6 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] delete orphan segments
 - [x] merge close-enough vertices
 - [ ] reuse existing vertices at stroke start
-- [ ] draw obstacles with procedural drawing
 - [ ] basic event sounds
 - [ ] engine + environmental sounds
 - [ ] good looking cars
@@ -79,4 +78,4 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 
 ## KNOWN BUGS
 
-- aux segment gfx aren't being properly destroyed?
+

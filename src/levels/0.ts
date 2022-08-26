@@ -1,4 +1,4 @@
-import { ProtoLevel } from './level';
+import { ProtoLevel } from '../level';
 
 export const level: ProtoLevel = {
   segments: [],
