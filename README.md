@@ -54,7 +54,7 @@ https://www.youtube.com/watch?v=GazC3A4OQTE
 - [x] make cars spawn from sources (and not on top of other cars)
 - [x] make cars die on destinations
 - [x] new cars shouldn't spawn on top of other cars
-- [ ] draw origins and destinations with location name signs
+- [x] draw origins and destinations with location name signs
 - [ ] avoid strokes over obstacle
 - [ ] aux vis: display connected roads
 - [ ] accelerate time

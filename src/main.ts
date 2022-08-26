@@ -8,7 +8,7 @@ import {
   TilingSprite,
 } from 'pixi.js';
 
-import { W, H, SHOW_FPS } from './constants';
+import { W, H, SHOW_FPS, ROAD_RADIUS } from './constants';
 import { Segment, onMove, updateSegmentGfx } from './segment';
 import { setupCars } from './car';
 import { setupKeyHandling } from './keyboard';
@@ -18,6 +18,8 @@ import { level as level_ } from './levels/2';
 import { init, drawObstacle } from './landmarks';
 import { setupFPS } from './fps';
 import { carSpawn } from './carSpawn';
+import { drawLocation } from './locations';
+import { keepInsideScreen } from './geometry';
 
 utils.skipHello();
 
@@ -42,8 +44,8 @@ const roadsCtn = new Container();
 const roadsAuxCtn = new Container();
 const carsAuxCtn = new Container();
 const carsCtn = new Container();
-app.stage.addChild(obstaclesCtn);
 app.stage.addChild(roadsCtn);
+app.stage.addChild(obstaclesCtn);
 app.stage.addChild(roadsAuxCtn);
 app.stage.addChild(carsAuxCtn);
 app.stage.addChild(carsCtn);
@@ -63,6 +65,22 @@ init().then(() => {
   for (const obs of level.obstacles) {
     const ctn = drawObstacle(obs);
     obstaclesCtn.addChild(ctn);
+
+    for (const ori of level.origins) {
+      const loc = drawLocation(ori.name, 0x000000, 0xFFFFFF);
+      loc.position = ori.point.clone();
+      loc.position.y -= ROAD_RADIUS;
+      keepInsideScreen(loc);
+      obstaclesCtn.addChild(loc);
+    }
+
+    for (const dst of level.destinations) {
+      const loc = drawLocation(dst.name, 0xFFFFFF, dst.color);
+      loc.position = dst.point.clone();
+      loc.position.y -= ROAD_RADIUS;
+      keepInsideScreen(loc);
+      obstaclesCtn.addChild(loc);
+    }
   }
 });
 

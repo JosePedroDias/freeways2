@@ -1,4 +1,5 @@
-import { Point } from 'pixi.js';
+import { DisplayObject, Point } from 'pixi.js';
+import { W } from './constants';
 import { PointArr } from './level';
 
 export function distXY(dx: number, dy: number): number {
@@ -95,4 +96,17 @@ export function nearestPoint(from: Point, points: Point[]): Point {
     }
   }
   return candidate;
+}
+
+export function keepInsideScreen(gfx:DisplayObject) {
+  const pos = gfx.position;
+  const width2 = gfx.getBounds().width / 2;
+  const x0 = pos.x - width2;
+  const x1 = pos.x + width2;
+  if (x0 < 0) {
+    pos.x = width2;
+  }
+  else if (x1 > W) {
+    pos.x = W - width2;
+  }
 }
